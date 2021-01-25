@@ -1,0 +1,13 @@
+#' @title SIR process
+#' @description  Markov kernel for SIR process when the increment in time dt < 1
+#' @param agent_state binary vector
+#' @param model_config
+#' @param dt increment in time , dt < 1
+sis_simulate_continuous <- function(agent_state, model_config, dt = 0.5){
+  steps <- floor(1/dt)
+  # dt <- 1/steps
+  for (d in 1:steps){
+    agent_state <- sir_kernel(agent_state, model_config);
+  }
+  return(agent_state)
+}
