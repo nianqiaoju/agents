@@ -1,10 +1,11 @@
-### This folder (/figures/section3) contains scripts to reproduce figures and tables in section 3.
+### This folder contains scripts to reproduce figures and tables in Section 3.
 
-All the experiments in this section shares the same running simulated data example: the evolution of an infectious disease on 100 heterogenous individuals over the course of 90 days. 
-"setup_hetero.R" generates the simulated dataset and saves it at "data_setup_hetero.RData."
+All the experiments in this section shares the same running simulated data example: 
+	the evolution of an infectious disease on 100 heterogenous individuals over the course of 90 days. 
+The dataset is simulated by "setup_hetero.R" and saved to "data_setup_hetero.RData."
 
 ## Numerical illustrations of the SMC methods.
-	* compare_variance_logzhat produces Table 2. 
+	* Produces Table 2 with the script compare_variance_logzhat.R 
 
 ## Heatmap of marginal likelihood as a function of parameters. 
 
