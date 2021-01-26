@@ -5,7 +5,7 @@ All the experiments in this section shares the same running simulated data examp
 The dataset is simulated by "setup_hetero.R" and saved to "data_setup_hetero.RData."
 
 ## Numerical illustrations of the SMC methods.
-	* Produces Table 2 with the script compare_variance_logzhat.R 
+	* Produce Table 2 with the script compare_variance_logzhat.R 
 
 ## Heatmap of marginal likelihood as a function of parameters. 
 
