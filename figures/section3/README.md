@@ -7,12 +7,16 @@ All the experiments in this section shares the same running simulated data examp
 	* compare_variance_logzhat produces Table 2. 
 
 ## Heatmap of marginal likelihood as a function of parameters. 
-	We are interested particularly in whether the MLE converges to the data generating parameters as $T$ increases.
 
-	* 'generate_grid_hetero_slopes.R': fix all parameters except $(\beta_{\lambda}^1, \beta_{\gamma}^2)$ at data generating value. Approximate the marginal likelihood for values of $(\beta_{\lambda}^1, \beta_{\gamma}^2)$ on a grid. 
+	We are interested particularly in whether the MLE converges to the data 
+	generating parameters as $T$ increases.
+
+	* 'generate_grid_hetero_slopes.R': fix all parameters except 
+	$(\beta_{\lambda}^1, \beta_{\gamma}^2)$ at data generating value. 
+	Approximate the marginal likelihood for values of $(\beta_{\lambda}^1, \beta_{\gamma}^2)$ on a grid. 
 		** 'data_generate_grid_hetero_slopes.RData': saves data.
 		** 'plot_likelihood_slopes.R': makes the heatmaps.
-	* 'generate_grid_hetero.R': fix all parameters except $(\beta_{gamma}^1, \beta_{\gamma}^2)$.
+	* 'generate_grid_hetero.R': fix all parameters except $(\beta_{\gamma}^1, \beta_{\gamma}^2)$.
 
 ## Bayesian inference of the paramters using PMCMC. 
 	* setup_mcmc.R: define pmcmc kernel, prior density;
@@ -33,8 +37,13 @@ All the experiments in this section shares the same running simulated data examp
 
 ### posterior predictive of $p(y_{31:90} \mid y_{0:30})$
 
-	* Generate posterior samples of $p(\theta,X \mid y_{0:30})$ by running the script run_pmcmc_shortobs.R and setting the approximate length of observations.
-	* Generate posterior predictive samples with the script simulate_posterior_prediction.R and save plots.
+	* Generate posterior samples of $p(\theta,X \mid y_{0:30})$ by
+		** running the script run_pmcmc_shortobs.R, and 
+		** setting the approximate length of observations.
+		** saving the samples at data_run_pmcmc_prediction_30obs_dgpinit.RData.
+	* Generate posterior predictive samples:
+		** using the script simulate_posterior_prediction.R and
+		** plotting the posterior preditive trajectories.
 
 ## Compare Gibbs with PMCMC:
 	* Run the Gibbs samplers, initialized from the DGP and run the prior, with scripts:
