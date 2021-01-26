@@ -4,9 +4,11 @@ All the experiments in this section shares the same running simulated data examp
 "setup_hetero.R" generates the simulated dataset and saves it at "data_setup_hetero.RData."
 
 Experiments in this section serve three purposes.
-## Properties of the three SMC algorithms, in terms of run-time, effective sample size and variance of marginal likelihood estimators. 
+## Numerical illustrations of the SMC methods.
 	* compare_variance_logzhat produces Table 2. 
-## Heatmap of marginal likelihood as a function of parameters. We are interested particularly in whether the MLE converges to the data generating parameters as $T$ increases.
+## Heatmap of marginal likelihood as a function of parameters. 
+	We are interested particularly in whether the MLE converges to the data generating parameters as $T$ increases.
+
 	* 'generate_grid_hetero_slopes.R': fix all parameters except $(\beta_{\lambda}^1, \beta_{\gamma}^2)$ at data generating value. Approximate the marginal likelihood for values of $(\beta_{\lambda}^1, \beta_{\gamma}^2)$ on a grid. 
 		** 'data_generate_grid_hetero_slopes.RData': saves data.
 		** 'plot_likelihood_slopes.R': makes the heatmaps.
@@ -22,7 +24,7 @@ Experiments in this section serve three purposes.
 
 ### posterior predictive of $p(y_{31:90} \mid y_{0:30})$'run_pmcmc_shortobs.R': ;
 	* generate posterior samples of $p(\theta,X \mid y_{0:30})$ by running the script run_pmcmc_shortobs.R and setting the approximate length of observations.
-	* generate posterior predictive samples with the script run_posterior_prediction.R and save plots.
+	* generate posterior predictive samples with the script simulate_posterior_prediction.R and save plots.
 
 ## Compare Gibbs with PMCMC:
 	* run_block5_gibbs.R
