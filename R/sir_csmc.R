@@ -1,9 +1,9 @@
 #' @title controlled SMC for SIR model
 #' @description marginal likelihood estimations and samples from the posterior distribution of agent states
 #' @param y , observations, length (T+1)
-#' @param model_config
-#' @param particle_config
-#' @return A list containing 
+#' @param model_config a list containing model parameters, must pass the test of check_model_config;
+#' @param particle_config a list specifying the particle filter, must pass the test of check_particle_config;
+#' @return the particle filter outcome, must contain estimate of log marginal likelihood and effective sample size.
 #' @export
 
 sir_csmc <- function(y, model_config, particle_config, policy = NULL){

@@ -1,14 +1,13 @@
-#' Access the last element in a vector
-#'
+#' @title Access the last element in a vector
 #' @param x vector 
+#' @param rm.na binary, if TRUE, then ignore the NA values in x.
 #' @return last element in the vector x 
-#'
-#' @export
 #' 
-mylast <- function(x) x[length(x)]
-
-
-#' @param x numeric vector
-#' @return last no-na element in the vector, assuming that all na's are at the tail.
-#' @export
-mylast_nona <- function(x) x[sum(!is.na(x))]
+mylast <- function(x, rm.na = FALSE){
+  if(rm.na){ ## if ignore NA
+    ## this is assuming that all NA's are at the end of the vector.
+    return(x[sum(!is.na(x))])
+  }else{
+    return(rm.na)
+  }
+}

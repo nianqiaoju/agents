@@ -4,8 +4,8 @@ Title: Toolkit for inference in agent-based modelss
 Version: 1.0
 Date: 2019-02-18
 Author: Phyllis Ju, Pierre Jacob, Jeremy Heng
-Maintainer: Phyllis Ju (nju@g.harvard.edu)
-Description: More about what it does (maybe more than one line)
+Maintainer: Phyllis Ju <nju@g.harvard.edu>
+Description: Algorithms for inference in agent-based models for disease transmission.
 License: What license is it under?
 Imports: Rcpp (>= 1.0.0), RcppEigen (>= 0.3.3.5.0)
 LinkingTo: Rcpp, RcppEigen

@@ -13,7 +13,6 @@
 #' }
 #' @return xx
 
-NULL
 sir_xx_gibbs_blocked_kernel <- function(xx, block_members, y, model_config, all_xx_block = NULL){
 	if(length(block_members)>5) stop("block size too large for exact updates");
 	if(is.null(all_xx_block)) all_xx_block <- sir_get_state_space(length(block_members));

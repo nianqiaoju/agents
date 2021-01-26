@@ -182,7 +182,7 @@ sis_csmc <- function(y, model_config, particle_config){
   if(particle_config$clock){
     runtimes <- as.numeric(runtimes - startstopwatch, units = "seconds");
     result$runtimes = runtimes
-    result$totaltime = mylast_nona(runtimes);
+    result$totaltime = mylast(runtimes, rm.na = TRUE);
   }
   if(particle_config$save_particles) result$particles = particles
   if(particle_config$save_genealogy) result$eves = eves

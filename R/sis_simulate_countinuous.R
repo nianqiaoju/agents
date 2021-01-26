@@ -1,7 +1,7 @@
 #' @title SIS process
 #' @description  Markov kernel for SIS process when the increment in time dt < 1
 #' @param agent_state binary vector
-#' @param model_config
+#' @param model_config a list containing model parameters, must pass the test of check_model_config.
 #' @param dt increment in time , dt < 1
 sis_simulate_continuous <- function(agent_state, model_config, dt = 0.5){
   steps <- floor(1/dt)
