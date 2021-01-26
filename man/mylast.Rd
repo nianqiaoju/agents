@@ -4,10 +4,12 @@
 \alias{mylast}
 \title{Access the last element in a vector}
 \usage{
-mylast(x)
+mylast(x, rm.na = FALSE)
 }
 \arguments{
 \item{x}{vector}
+
+\item{rm.na}{binary, if TRUE, then ignore the NA values in x.}
 }
 \value{
 last element in the vector x

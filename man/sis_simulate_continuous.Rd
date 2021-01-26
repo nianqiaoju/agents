@@ -12,7 +12,12 @@ sis_simulate_continuous(agent_state, model_config, dt = 0.5)
 \arguments{
 \item{agent_state}{binary vector}
 
+\item{model_config}{a list containing model parameters, must pass the test of check_model_config.}
+
 \item{dt}{increment in time , dt < 1}
+}
+\value{
+agent states.
 }
 \description{
 Markov kernel for SIR process when the increment in time dt < 1

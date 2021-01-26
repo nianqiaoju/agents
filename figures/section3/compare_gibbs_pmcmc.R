@@ -98,44 +98,7 @@ p_hist2 <- p_hist2 + geom_vline(data = vline_df, aes(xintercept = value));
 p_hist2 <- p_hist2 + ylab("density") + theme(axis.text.x = element_text(size = 14), axis.title.x = element_blank());
 p_hist2
 
-ggsave(filename = "~/Dropbox/AgentBasedModels/paper/gibbs.compare.pmcmc.hist1.pdf", plot = p_hist1,
-       device = "pdf", width = 12, height = 12);
-ggsave(filename = "~/Dropbox/AgentBasedModels/paper/gibbs.compare.pmcmc.hist2.pdf", plot = p_hist2,
-       device = "pdf", width = 12, height = 12);
-
-## compute the autocorrelations ----
-lags <- c(1,seq(1,20) * 250);
-lags;
-acf_df <- data.frame(method = factor(character(), levels = c("pmmh", "block5","single-site")), 
-                                     lag = integer(),
-                                     parameter = integer(), 
-                                     autocorr = double());
-for(iparameter in c(1,4,7)){
-  acf_df <- rbind(acf_df, data.frame(method = "pmmh",
-                                     lag = lags, 
-                                     parameter = iparameter, 
-                                     autocorr = acf(pmcmc_rand_param_chain[nburn : nmcmc, iparameter], lag.max = 5000, plot = F)$acf[1 + lags]));
-  acf_df <- rbind(acf_df, data.frame(method = "block5",
-                                     lag = lags, 
-                                     parameter = iparameter, 
-                                     autocorr = acf(block_rand_param_chain[nburn : nmcmc, iparameter], lag.max = 5000, plot = F)$acf[1 + lags]));
-  acf_df <- rbind(acf_df, data.frame(method = "single-site",
-                                     lag = lags, 
-                                     parameter = iparameter, 
-                                     autocorr = acf(singlesite_rand_param_chain[nburn : nmcmc, iparameter], lag.max = 5000, plot = F)$acf[1 + lags]));
-  
-}
-
-acf_df <- acf_df %>% mutate(parameter = factor(parameter, labels = c(expression(beta[0]^1), expression(beta[lambda]^2),expression(rho))));
-
-head(acf_df)
-
-## generate plot and save ----
-p_acf <- ggplot(acf_df, aes(x = lag, y = autocorr)) + geom_line(aes(colour = method)) + geom_point(aes(colour = method))  ;
-p_acf <- p_acf + facet_wrap(vars(parameter), labeller = "label_parsed");
-p_acf <- p_acf + scale_color_colorblind();
-p_acf <- p_acf + ylab("autocorrelation") + theme(axis.text.x = element_text(size = 14), axis.title.x = element_blank()) + ylim(-0.1,1);
-p_acf;
-
-ggsave(filename = "~/Dropbox/AgentBasedModels/paper/gibbs.compare.pmcmc.pdf", plot = p_acf,
-       device = "pdf", width = 12, height = 4);
+# ggsave(filename = "~/Dropbox/AgentBasedModels/paper/gibbs.compare.pmcmc.hist1.pdf", plot = p_hist1,
+#        device = "pdf", width = 12, height = 12);
+# ggsave(filename = "~/Dropbox/AgentBasedModels/paper/gibbs.compare.pmcmc.hist2.pdf", plot = p_hist2,
+#        device = "pdf", width = 12, height = 12);
