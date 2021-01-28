@@ -34,7 +34,7 @@ hist(ypred_samples[1,]);
 
 ## how many of the predictions leads to no breakout?
 no_outbreaks <- function(ypred){
-  sum(ypred == 0) >= 2;
+  sum(ypred == 0) >= 10;
 }
 
 ## ~43 of the predicted trajectories are not outbreaks
@@ -88,7 +88,7 @@ pred_plot <- pred_plot + scale_fill_grey(start = 0.8, end = 0) + theme(legend.po
 pred_plot <- pred_plot + scale_x_continuous(breaks = c(0,30,60,90));
 pred_plot;
 
-ggsave(filename = "figures/section3/prediction.30obs.pdf", plot = pred_plot,
+ggsave(filename = "~/Dropbox/AgentBasedModels/paper/prediction.30obs.pdf", plot = pred_plot,
 device = "pdf", width = 12, height = 4);
 
 ## predict number of patients on each day (not observed patients) -------

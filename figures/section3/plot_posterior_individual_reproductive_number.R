@@ -69,7 +69,7 @@ rn_plot <- rn_plot + labs(x = "sorted agent index", y = expression(log(R[0]^n)))
 rn_plot
 
 # ## save g to pdf 
-ggsave(filename = "figures/section3/individual.reproductive.number.pdf", plot = rn_plot,
+ggsave(filename = "~/Dropbox/AgentBasedModels/paper/individual.reproductive.number.pdf", plot = rn_plot,
        device = "pdf", width = 6, height = 6);
 
 ## the distribution of reproductive numbers -----
@@ -119,7 +119,7 @@ hist_plot <- hist_plot + labs(x = expression(log(R[0]^n)), y = "proportion");
 # hist_plot <- hist_plot + theme(axis.text.y = element_text(angle = 90));
 hist_plot
 
-ggsave(filename = "figures/section3/profile.reproductive.number.pdf", plot = hist_plot,
+ggsave(filename = "~/Dropbox/AgentBasedModels/paper/profile.reproductive.number.pdf", plot = hist_plot,
        device = "pdf", width = 6, height = 6);
 
 ## plot posterior histogram envelops of the individual r0 -------
