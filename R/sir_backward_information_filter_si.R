@@ -10,12 +10,12 @@ sir_backward_information_filter_si <- function(y, model_config){
   ## first create the approximate Markov transition kernel
   N <- model_config$N;
   num_observations <- length(y);
-  policy <- array(data = -Inf, dim = c(model_config$N + 1, model_config$N + 1, num_observations));
-  ## policy[s+1,i+1,t+1] is psi_t(s,i).
+  logpolicy <- array(data = -Inf, dim = c(model_config$N + 1, model_config$N + 1, num_observations));
+  ## logpolicy[s+1,i+1,t+1] is log(psi_t(s,i)).
   average_lambda <- mean(model_config$lambda);
   average_gamma <- mean(model_config$gamma);
   ## rewrite the commented code in rcpp to save time from the 4 layrs of for-loops
-  log_fhat <- function(scount_prev, icount_prev, scount,  icount){
+  log_fhat <- function(scount_prev, icount_prev, scount, icount){
     if (icount_prev + scount_prev > N) return(-Inf);
     if (icount + scount > N ) return(-Inf);
     if (scount > scount_prev) return(-Inf);
@@ -33,13 +33,15 @@ sir_backward_information_filter_si <- function(y, model_config){
     }
   }
   ## the approximate dynamic programming runs backwards 
+  ## terminal time 
   current_logpolicy <- matrix(- Inf, nrow = N + 1, ncol = N + 1)
   for (icount in y[num_observations] : N){
     for (scount in 0 : (N - icount)){
       current_logpolicy[scount + 1, icount + 1] <- dbinom(x = y[num_observations], size = icount, prob = model_config$rho, log = T);
     }
   }
-  policy[, , num_observations] <- current_logpolicy ;
+  logpolicy[, , num_observations] <- current_logpolicy ;
+  ## t <= terminal time - 1;
   for (t in (num_observations - 1) : 1){## dynamic programming starts, backwards
     support <- y[t]:N;
     supportsize <- length(support);
@@ -51,7 +53,7 @@ sir_backward_information_filter_si <- function(y, model_config){
         current_logpolicy[scount_prev + 1, icount_prev + 1] <- loggt[i] + lw.logsum(policy[ , , t + 1] + log_fhat_array[scount_prev + 1, icount_prev + 1, , ]);
       }
     }
-    policy[, , t] <- current_logpolicy;
+    logpolicy[, , t] <- current_logpolicy;
   }
-  return(policy)
+  return(logpolicy)
 }
