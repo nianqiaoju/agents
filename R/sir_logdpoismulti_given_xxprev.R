@@ -1,5 +1,5 @@
 #' @title SIR model
-#' @description p(it, rt | x[t-1]) 
+#' @description the density of p(it, rt | x[t-1]) 
 #' @param xxprev x[t-1] 
 #' @param model_config a list containing parameters and network structure 
 #' @export
@@ -27,4 +27,27 @@ sir_logdpoismulti_given_xxprev <- function(xxprev, model_config){
   }
   qq[which(is.na(qq))] <- -Inf
   return(qq)
+}
+
+
+sir_logdpoismulti_given_xxprev_si <- function(xxprev, model_config){
+  ## compute the transition probability from xx[t-1] to the aggregated state (st, it)
+  qq <- matrix(-Inf, nrow = model_config$N + 1, ncol = model_config$N + 1);
+  prev_infected_agents <- which(xxprev == 1);
+  prev_susceptible_agents <- which(xxprev == 0);
+  icount_prev <- length(prev_infected_agents);
+  scount_prev <-length(prev_susceptible_agents);
+  support_i2r_counts <- 0 : icount_prev;
+  support_s2i_counts <- 0 : scount_prev;
+  alphai <- sir_get_alpha_i(xxprev, model_config);
+  di2r <- logdpoisbinom_cpp(1 - alphai[prev_infected_agents]); ## this vector starts at 0
+  ds2i <- logdpoisbinom_cpp(alphai[prev_susceptible_agents]);
+  for (s2i in support_s2i_counts){
+    for (i2r in support_i2r_counts){
+      it <- icount_prev + s2i - i2r ;
+      st <- scount_prev - s2i;
+      qq[st + 1, it + 1] <- di2r[i2r + 1] + ds2i[s2i + 1];
+    }
+  }
+  return(qq);
 }
