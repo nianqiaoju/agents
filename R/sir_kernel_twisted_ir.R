@@ -54,3 +54,5 @@ sir_kernel_twisted_ir <- function(xxprev, it, rt, model_config){
   return(xxnew)
 }
 
+
+

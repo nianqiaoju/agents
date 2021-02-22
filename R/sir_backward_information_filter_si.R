@@ -14,7 +14,7 @@ sir_backward_information_filter_si <- function(y, model_config){
   ## logpolicy[s+1,i+1,t+1] is log(psi_t(s,i)).
   average_lambda <- mean(model_config$lambda);
   average_gamma <- mean(model_config$gamma);
-  ## rewrite the commented code in rcpp to save time from the 4 layrs of for-loops
+  # rewrite line 18 - 34 in rcpp to save time from the 4 layrs of for-loops
   log_fhat <- function(scount_prev, icount_prev, scount, icount){
     if (icount_prev + scount_prev > N) return(-Inf);
     if (icount + scount > N ) return(-Inf);
@@ -50,7 +50,7 @@ sir_backward_information_filter_si <- function(y, model_config){
     for (i in 1 : supportsize){
       icount_prev <- support[i];
       for (scount_prev in 0 : (N - icount_prev)){
-        current_logpolicy[scount_prev + 1, icount_prev + 1] <- loggt[i] + lw.logsum(policy[ , , t + 1] + log_fhat_array[scount_prev + 1, icount_prev + 1, , ]);
+        current_logpolicy[scount_prev + 1, icount_prev + 1] <- loggt[i] + lw.logsum(logpolicy[ , , t + 1] + log_fhat_array[scount_prev + 1, icount_prev + 1, , ]);
       }
     }
     logpolicy[, , t] <- current_logpolicy;
