@@ -201,6 +201,68 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sir_bif_cpp_alt
+NumericVector sir_bif_cpp_alt(const IntegerVector y, const double lambda, const double gamma, const double rho, const int N, const double c);
+RcppExport SEXP _agents_sir_bif_cpp_alt(SEXP ySEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(sir_bif_cpp_alt(y, lambda, gamma, rho, N, c));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sir_bif_cpp
+NumericVector sir_bif_cpp(const IntegerVector& y, const IntegerMatrix& nexts, const IntegerMatrix& nexti, const NumericMatrix& logfbar, const double& rho, const int& N);
+RcppExport SEXP _agents_sir_bif_cpp(SEXP ySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP rhoSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexts(nextsSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexti(nextiSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(sir_bif_cpp(y, nexts, nexti, logfbar, rho, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_fbar_matrix
+List create_fbar_matrix(const double lambda, const double gamma, const int N, const double c);
+RcppExport SEXP _agents_create_fbar_matrix(SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_fbar_matrix(lambda, gamma, N, c));
+    return rcpp_result_gen;
+END_RCPP
+}
+// update_fbar_matrix
+void update_fbar_matrix(IntegerMatrix& nexts, IntegerMatrix& nexti, NumericMatrix& logfbar, const double& lambda, const double& gamma, const int& N, const double& c);
+RcppExport SEXP _agents_update_fbar_matrix(SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexts(nextsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexti(nextiSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
+    update_fbar_matrix(nexts, nexti, logfbar, lambda, gamma, N, c);
+    return R_NilValue;
+END_RCPP
+}
 // sis_apf_exact_full_cpp
 double sis_apf_exact_full_cpp(const IntegerVector& y, const NumericVector& alpha0, const NumericVector& lambda, const NumericVector& gamma, const double rho, const int num_particles, const double threshold, const int population_size);
 RcppExport SEXP _agents_sis_apf_exact_full_cpp(SEXP ySEXP, SEXP alpha0SEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP num_particlesSEXP, SEXP thresholdSEXP, SEXP population_sizeSEXP) {
@@ -326,6 +388,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_misc_ir2index_cpp", (DL_FUNC) &_agents_misc_ir2index_cpp, 3},
     {"_agents_logfbar_cpp", (DL_FUNC) &_agents_logfbar_cpp, 7},
     {"_agents_sir_bif_policy_matrix_cpp", (DL_FUNC) &_agents_sir_bif_policy_matrix_cpp, 5},
+    {"_agents_sir_bif_cpp_alt", (DL_FUNC) &_agents_sir_bif_cpp_alt, 6},
+    {"_agents_sir_bif_cpp", (DL_FUNC) &_agents_sir_bif_cpp, 6},
+    {"_agents_create_fbar_matrix", (DL_FUNC) &_agents_create_fbar_matrix, 4},
+    {"_agents_update_fbar_matrix", (DL_FUNC) &_agents_update_fbar_matrix, 7},
     {"_agents_sis_apf_exact_full_cpp", (DL_FUNC) &_agents_sis_apf_exact_full_cpp, 8},
     {"_agents_sis_forward_algorithm_cpp", (DL_FUNC) &_agents_sis_forward_algorithm_cpp, 5},
     {"_agents_sis_get_alpha_full_cpp", (DL_FUNC) &_agents_sis_get_alpha_full_cpp, 3},

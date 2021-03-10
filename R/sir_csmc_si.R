@@ -92,7 +92,7 @@ sir_csmc_si <- function(y, model_config, particle_config, logpolicy = NULL){
     ## logw, logW and ess are cumulative
     logw <- logW + logweights;
     weights <- lw.normalize(logw);
-    ess[t] <- 1 / sum(weights ** 2)
+    ess[t] <- 1 / sum(weights ** 2) / particle_config$num_particles;
     ## adaptive resampling
     if(ess[t] < particle_config$ess_threshold){
       ancester <- sample.int(n = particle_config$num_particles, prob = weights, replace = TRUE);
@@ -129,11 +129,11 @@ sir_csmc_si <- function(y, model_config, particle_config, logpolicy = NULL){
   xT <- xts[, 1];
   # print(lognormalisingconstant)
   # print(sum(lognormalisingconstant))
-  ess[num_observations] <- particle_config$num_particles;
+  ess[num_observations] <- 1;
   result <- list(lognormalisingconstant = lognormalisingconstant, 
                  logz = sum(lognormalisingconstant), 
                  xT = xT,
-                 ess = ess[-1] / particle_config$num_particles, 
+                 ess = ess[-1] , 
                  eves = eves)
   if (particle_config$clock){
     runtimes <- runtimes - startstopwatch;
