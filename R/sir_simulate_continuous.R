@@ -5,7 +5,7 @@
 #' @param dt increment in time , dt < 1
 #' @return agent states.
 #' 
-sis_simulate_continuous <- function(agent_state, model_config, dt = 0.5){
+sir_simulate_continuous <- function(agent_state, model_config, dt = 0.5){
   steps <- floor(1/dt)
   # dt <- 1/steps
   for (d in 1:steps){

@@ -8,8 +8,8 @@ using namespace std;
 
 // [[Rcpp::export]]
 LogicalVector idchecking_cpp(const int sum_x,
-                   const NumericVector &alpha,
-                   const NumericVector &random_number) {
+                             const NumericVector &alpha,
+                             const NumericVector &random_number) {
   int N = alpha.length();
   NumericMatrix logq(N+1,N);
   std::fill(logq.begin(), logq.end(), R_NegInf);
@@ -39,7 +39,7 @@ LogicalVector idchecking_cpp(const int sum_x,
     }
   }
   // Rcout << "The value of logq : " << logq << "\n";
-
+  
   LogicalVector xx(N);
   int h = 0; // partial sum
   double logp = R_NegInf;

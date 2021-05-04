@@ -30,6 +30,7 @@ sir_logdpoismulti_given_xxprev <- function(xxprev, model_config){
 }
 
 
+## this function is now being replaced by sir_csmc_update_f_matrix
 sir_logdpoismulti_given_xxprev_si <- function(xxprev, model_config){
   ## compute the transition probability from xx[t-1] to the aggregated state (st, it)
   qq <- matrix(-Inf, nrow = model_config$N + 1, ncol = model_config$N + 1);

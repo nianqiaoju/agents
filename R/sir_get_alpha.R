@@ -20,9 +20,14 @@ sir_get_alpha_sir <- function(agent_states, model_config){
 #' @return \code{sir_get_alpha_i(agent_states, model_config)} returns alpha_i
 #' @export
 sir_get_alpha_i <- function(agent_states, model_config){
-	# alpha <- (agent_states == 0) * (model_config$lambda * t(agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * ( 1 - model_config$gamma);
-  alpha <- (agent_states == 0) * pmax(1e-4, model_config$lambda * t(agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * ( 1 - model_config$gamma);
-	return(as.vector(alpha))
+  if(model_config$network_type == "full"){
+    it <- sum(agent_states == 1);
+    alpha <- (agent_states == 0) * pmax(1e-4, model_config$lambda * it / N) + (agent_states == 1) * (1 - model_config$gamma);
+  }else{
+    alpha <- (agent_states == 0) * pmax(1e-4, model_config$lambda * (agent_states == 1) %*% model_config$adjacency_matrix_b)  + (agent_states == 1) * ( 1 - model_config$gamma);
+    
+  }
+	return(alpha)
 }
 
 
@@ -31,7 +36,7 @@ sir_get_alpha_i <- function(agent_states, model_config){
 #' @export
 sir_get_alpha_plusone <- function(agent_states, model_config){
   alpha_plusone <- rep(0, length(agent_states));
-  # alpha_plusone <- alpha_plusone + (agent_states == 0) * (model_config$lambda * (agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * (model_config$gamma);
-  alpha_plusone <- alpha_plusone + (agent_states == 0) * pmax(1e-4, model_config$lambda * (agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * (model_config$gamma);
+  alpha_plusone <- (agent_states == 0) * (model_config$lambda * (agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * (model_config$gamma);
+  # alpha_plusone <- (agent_states == 0) * pmax(1e-4, model_config$lambda * (agent_states == 1) %*% model_config$adjacency_matrix_b) + (agent_states == 1) * (model_config$gamma);
   return(as.vector(alpha_plusone))
 }

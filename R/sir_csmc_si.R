@@ -13,6 +13,7 @@ sir_csmc_si <- function(y, model_config, particle_config, logpolicy = NULL){
   if(is.null(logpolicy)) logpolicy <- sir_backward_information_filter_si(y, model_config);
   ## logpolicy[st + 1, it + 1,t + 1] = logpsi(st, it | y[t:T])
   num_observations <- length(y);
+  logf <- matrix(0, nrow = model_config$N + 1, ncol = model_config$N + 1);
   ## sum of lognormalising constant is final log marginal likelihood estimate
   lognormalisingconstant <- rep(- Inf, num_observations);
   ## average weight is one step normalisingconstant
@@ -67,7 +68,9 @@ sir_csmc_si <- function(y, model_config, particle_config, logpolicy = NULL){
     ## first compute the sampling kernel for next step F[t+1](policy[t+1])(xt), which is the sum of product of psi[t]() and kernel f(x[t-1],.)
     logcondexp <- rep(- Inf, particle_config$num_particles);
     for (p in 1 : particle_config$num_particles){
-      fpsi[ , , p] <- sir_logdpoismulti_given_xxprev_si(xxprev = xts[, p], model_config = model_config) + logpolicy[ ,  , t + 1];
+      sir_csmc_update_f_matrix(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N);
+      fpsi[ , , p] <- logf + logpolicy[ ,  , t + 1];
+      # fpsi[ , , p] <- sir_logdpoismulti_given_xxprev_si(xxprev = xts[, p], model_config = model_config) + logpolicy[ ,  , t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , , p]);
     }
     ## unnormalized weight = p(yt | xt) * E(policy |xt) / policy(xt)

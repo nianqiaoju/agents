@@ -1,0 +1,395 @@
+x <- x_init
+for (i in 1:nmcmc){}
+for (i in 1:nmcmc){
+x_propose <- x + rnorm(1)
+laccept <- dnorm(x_propose, log = TRUE) - dnorm(x, log = TRUE)
+if(log(runif(1) < laccept)){x <- x_propose}
+x_history[i] <- x
+}
+plot(x_history, type = 'l')
+x_init
+dnorm(x, log = TRUE)
+?dnorm
+nmcmc <- 10**5#
+nburn <- floor(nmcmc / 2)#
+## initalize the chain #
+x_init <- 10 + rnorm(1)#
+print(x_init)#
+x <- x_init#
+## store the history#
+x_hisotry <- rep(NA, nmcmc)#
+## stationar distribution: norm(0,1)#
+## rwmh norm(0,1)#
+for (imcmc in 1:nmcmc){#
+	x_propose <- x + rnorm(1, sd = 0.5)#
+	laccept <- dnorm(x_propose, log = TRUE) - dnorm(x, log = TRUE)#
+	if (log(runif(1) < laccept )){#
+		x <- x_propose#
+	}#
+	x_history[imcmc] <- x#
+}#
+## traceplot#
+plot(x_history, type = 'l')#
+#
+## acf #
+acf(x_history)#
+## acf after discarding burn-in#
+acf(x_history[nburn : nmcmc])
+x_hisotry
+laccept
+dnorm(x, log = TRUE)
+x
+x_init
+nmcmc <- 10**5#
+nburn <- floor(nmcmc / 2)#
+## initalize the chain #
+x_init <- 10 + rnorm(1)#
+print(x_init)#
+x <- x_init#
+## store the history#
+x_hisotry <- rep(NA, nmcmc)#
+## stationar distribution: norm(0,1)#
+## rwmh norm(0,1)#
+for (imcmc in 1:nmcmc){#
+	x_propose <- x + rnorm(1, sd = 0.5)#
+	laccept <- dnorm(x_propose, log = TRUE) - dnorm(x, log = TRUE)#
+	if (log(runif(1)) < laccept ){#
+		x <- x_propose#
+	}#
+	x_history[imcmc] <- x#
+}#
+## traceplot#
+plot(x_history, type = 'l')#
+#
+## acf #
+acf(x_history)#
+## acf after discarding burn-in#
+acf(x_history[nburn : nmcmc])
+acf(x_history)
+par(mfrow = c(2,1))
+acf(x_history)
+par(mfrow = c(2,1))
+acf(x_history)
+acf(x_history[nburn : nmcmc])
+x_hisotryplot(x_history, type = 'l')
+plot(x_history, type = 'l')
+getwd()
+0.74 * 73
+a <- 0.74 * 73
+b <- 0.082 * 142 /2 + 34.89
+a
+b
+a - b
+b <- 0.082 * 64.6 + 34.89
+a - b
+2**11 - 1
+factorize(2047)
+?assign
+ls
+x <- runif(100)#
+y <- rnorm(100)#
+plot(xy.group(x, y, g=10))
+library("Hmisc）"
+library("Hmisc"）
+install.packages("Hmisc")
+selection1 <- selection2 <- rep(0,10)
+selection1[sample.int(10,5)]
+selection1[sample.int(10,5)] <- 1
+selection1
+selection1 <- selection2 <- rep(0,10)
+selection1[sample.int(10,5)] <- 1
+selection2[sample.int(10,5)] <- 1
+selection1
+selection2
+d = sum(selection1 != selection2)
+d
+s1 <- sum(selection1)#
+  s2 <- sum(selection2)#
+  w11 <- selection1 / s1#
+  w12 <- selection2 / s2#
+  pmin1 <- pmin(w11, w12)#
+  alpha1 <- sum(pmin1)#
+  minor1 <- pmin1 / alpha1
+s1
+s2
+w11
+w12
+w11
+pmin12
+pmin1
+alpha1
+residual1 <- (w11 - pmin1) / (1 - alpha1)#
+  residual2 <- (w12 - pmin1) / (1 - alpha1)
+residual1
+residual2
+sum(residual1)
+sum(residual2)
+alpha1
+d/2/5
+d/1
+d/2
+s1
+1 - d/2/5
+coupled_pairs01 <- function(selection1, selection2){#
+  p <- length(selection1)#
+  # jointly samples ones#
+  s1 <- sum(selection1)#
+  s2 <- sum(selection2)#
+  w11 <- selection1 / s1#
+  w12 <- selection2 / s2#
+  pmin1 <- pmin(w11, w12)#
+  alpha1 <- sum(pmin1)#
+  minor1 <- pmin1 / alpha1#
+  residual1 <- (w11 - pmin1) / (1 - alpha1)#
+  residual2 <- (w12 - pmin1) / (1 - alpha1)#
+  ind1 <- c(NA, NA)#
+  if (runif(1) < alpha1){#
+    x <- sample(x = 1:p, size = 1, prob = minor1)#
+    ind1 <- c(x,x)#
+  } else {#
+    ind1 <- c(sample(x = 1:p, size = 1, prob = residual1),#
+              sample(x = 1:p, size = 1, prob = residual2))#
+  }#
+  # jointly samples zeros#
+  w01 <- (1 - selection1) / (p - s1)#
+  w02 <- (1 - selection2) / (p - s2)#
+  pmin0 <- pmin(w01, w02)#
+  alpha0 <- sum(pmin0)#
+  minor0 <- pmin0 / alpha0#
+  residual1 <- (w01 - pmin0) / (1 - alpha0)#
+  residual2 <- (w02 - pmin0) / (1 - alpha0)#
+  ind0 <- c(NA, NA)#
+  if (runif(1) < alpha0){#
+    x <- sample(x = 1:p, size = 1, prob = minor0)#
+    ind0 <- c(x,x)#
+  } else {#
+    ind0 <- c(sample(x = 1:p, size = 1, prob = residual1),#
+              sample(x = 1:p, size = 1, prob = residual2))#
+  }#
+  return(c(ind0, ind1))#
+}
+coupled_pairs01(selection1,selection2)
+selection1[5]
+selection2[5]
+selection1[4]
+residual1
+residual2
+residual1 * residual2
+alpha1
+w11
+w12
+w11-pmin1
+w120pmin2
+p12-pmin2
+w12-pmin1
+indices <- coupled_pairs01(selection1, selection2)
+selection1[indices[2]]
+selection0[indices[1]]
+selection2[indices[1]]
+indices
+selection1[indices1]
+selection1[indices[1]]
+selection2[indices[1]]
+selection1[indices[4]]
+selection1[indices]
+selection2[indices]
+show_table <- function(selection1, selection2){}
+show_table <- function(selection1, selection2){
+indices <- coupled_pairs01(selection1, selection2)
+print(selection1[indices])
+print(selection2[indices])
+}
+show_table(selection1,selection2)
+N <- 100
+y <- 5
+rho <- 0.5
+g <- dbinom(y,y:N,rho,T)
+g
+plot(g)
+which.max(g)
+exp(g)
+which.max(g)
+cy <- rep(NA, N)
+for (y in 1:N){}
+for (y in 1:N){
+cy[y] <- max(dbinom(y, y : N, rho))
+}
+cy
+plot(cy)
+rho <- 0,8
+rho <- 0.8
+g <- dbinom(y,y:N,rho,T)
+cy <- rep(NA,N)
+for (y in 1:N){#
++ cy[y] <- max(dbinom(y, y : N, rho))#
++ }
+for ( y in 1:N){
+cy[y] <- max(dbinom(y, y:N, rho))
+}
+plot(cy)
+floor(763/7)
+log(0.2)
+0.8
+diff <- function(x) log(1-x)-x
+diff(0.2)
+diff(0.8)
+diff(0.2)
+diff(0.5)
+diff(seq(0.1,0.9,length.out = 10))
+49.57/10.73
+113.32/26.91
+125.09/28.42
+n=1000000#
+n1=rnorm(n)#
+n2=rnorm(n)#
+samples=matrix(nrow=n,ncol=2)#
+samples[,1]=n1#
+samples[,2]=n2#
+p1 = dnorm(samples[,1])#
+p2 = dnorm(samples[,2])#
+r= sqrt(samples[,1] **2+samples[,2] **2)<=1#
+#
+mean(r/(p1*p2))
+n <- 100
+b1 <- -1
+b2 <- 1
+w <- rnorm(100)
+w <- rnorm(n)
+expit <- function(z) 1 / (1 + exp(-z))
+lam <- expit(b1 + b2 * w)
+hist(lam)
+summary(lam)
+temp <- c(1:5)
+temp
+matrix(temp, nrow = 5, ncol = 3)
+p <- ggplot()
+library(ggplot)
+library(ggplot2)
+p <- ggplot()
+p + annotate("JU", x = 1, y = 1)
+p + annotate("text", x = 1, y = 1, lable = "Ju")
+p + annotate("text", x = 1, y = 1, label = "Ju")
+p
+p + theme_bw
+p + theme_bw()
+p
+p + annotate("text", x = 1, y = 1, label = "Ju")
+theme_icon <- function () {#
+    theme_void() + #
+    theme(#
+      panel.background = element_rect(fill = "transparent", colour = NA), #
+      plot.background = element_rect(fill = "transparent", colour = NA), #
+      legend.background = element_rect(fill = "transparent", colour = NA), #
+      legend.box.background = element_rect(fill = "transparent", colour = NA)#
+    )#
+}
+p + theme_icon()
+rm(list = ls())
+df <- data.frame(x = double(100), y = double(100))
+for (i in 1 : 100){}
+for (i in 1 : 100){
+df[i,] <- runif(2)
+}
+p <- ggplot(df, aes(x,y)) + geom_tile()
+p
+p <- ggplot(df, aes(x,y)) + geom_t)
+rm(list = ls())
+x_seq <- y_seq <- seq(-4,4,length.out = 100)
+df <- data.frame()
+for(x in x_seq){}
+for(x in x_seq){
+for(y in y_seq){
+df <- rbind(df, data.frame(x = x, y = y, z = dnorm(x,log = T) + dnorm(y, log = T)))
+}
+head(df)
+p <- ggplot(df, aes(x = x, y = y, fill = z)) + geom_tile()
+p
+theme_icon <- function () {#
+    theme_void() + #
+    theme(#
+      panel.background = element_rect(fill = "transparent", colour = NA), #
+      plot.background = element_rect(fill = "transparent", colour = NA), #
+      legend.background = element_rect(fill = "transparent", colour = NA), #
+      legend.box.background = element_rect(fill = "transparent", colour = NA)#
+    )#
+}
+p <- p + theme_icon()
+p
+p <- p + theme(legend.position= "none")
+p
+p <- p + scale_fill_gradient(low = "white", high = "black")
+p
+p <- p + scale_fill_gradient(low = "white", high = "pink")
+p
+ggsave(#
+  filename = "Desktop/icon.png", p, #
+  dpi=512, width = 1, height = 1, bg = "transparent"#
+  )
+n <- 10**5
+n
+ps <- runif(n)
+ws <- ps / ( 1- ps)
+quantile(ws, 0.05)
+wlo <- 0.5 * quantile(ws, 0.05)
+whi <- wlo + quantile(ws,0.95)
+whi
+wlo/whi
+0.9 / ( 1- 0.9) * wlo / whi
+100 * log(100)
+100 * log(100) /4
+x <- c(1,1,0,0)
+diag(1.5)
+diag(1)
+diag(2)
+diag(0.5)
+diag(03)
+diag(3.5)
+?diag
+library("Rcoo")
+library("Rcpp")
+cppFunction(max(-Inf,1))
+cppFunction('double maxCpp(double x, double y){  ')
+library('Rcpp')#
+#
+cppFunction('double maxC(double x,double y){#
+	return(double max(x,y))#
+	')}
+library('Rcpp')#
+#
+cppFunction('double maxC(double x,double y){#
+	return(double max(x,y));#
+	')}
+library('Rcpp')#
+#
+cppFunction('double maxC(double x,double y){#
+	return double max(x,y);#
+	')}
+library('Rcpp')#
+#
+cppFunction('double maxC(double x,double y){#
+	return double max(x,y);#
+	}')
+library('Rcpp')#
+#
+cppFunction('double maxC(double x,double y){#
+	return double std::max(x,y);#
+	}')
+sourceCpp("Desktop/maxCpp.R")
+sourceCpp("Desktop/maxCpp.cpp")
+maxC(-Inf ,3)
+maxC(-Inf ,-Inf)
+maxC(1,2)
+sourceCpp("Desktop/maxCpp.cpp")
+logsumexpC(-Inf,-Inf)
+maxC(-Inf,-Inf)
+logsumexpC(2,3)
+sourceCpp("Desktop/maxCpp.cpp")
+logsumexpC(2,3)
+logsumexpC(-Inf,-Inf)
+setwd("~/Dropbox/AgentBasedModels/agents")
+source("figures/section3/compare_variance_rho.R")
+p
+tail(grid_rho_summary)
+View(grid_rho_summary)
+grid_rho_summary
+subset(grid_rho_summary, method == 'bpf')

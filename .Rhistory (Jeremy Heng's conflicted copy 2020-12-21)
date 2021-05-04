@@ -1,0 +1,512 @@
++ log(param$rho) + log(1 - param$rho)
+}
+## mh chain
+mh <- function(num_mcmc, llik){
+## store chain for beta and rho
+b_chain <- rep(NA, num_mcmc)
+r_chain <- rep(NA, num_mcmc)
+## store acceptance indicator
+accept <- rep(0, num_mcmc)
+## record wall clock time
+start_time <- Sys.time()
+## initialize Markov chain and
+## store state of Markov chain in a list
+param <- list(beta = rnorm(1), rho = runif(1))
+## compute posterior and Jacobian term of the proposal at current state
+lpost_current <- llik(param) + lprior(param) + ljacobian(param)
+## if current posterior is -Infinity, set new initial point
+while(is.infinite(lpost_current)){
+param <- list(beta = rnorm(1), rho = runif(1))
+lpost_current <- llik(param) + lprior(param) + ljacobian(param)
+}
+## at each iteration
+for (iter in 1:num_mcmc){
+## propose new state
+proposal <- q(param)
+## evaluate target density at proposal + log Jacobian
+lpost_proposal <- lprior(proposal) + llik(proposal) + ljacobian(proposal)
+## MH acceptance step
+if (log(runif(1)) < (lpost_proposal - lpost_current)){
+accept[iter] <- 1
+param <- proposal
+lpost_current <- lpost_proposal
+}
+## record current state
+b_chain[iter] <- param$beta
+r_chain[iter] <- param$rho
+}
+## record wall clock time
+end_time <- Sys.time()
+## return chains, run-time, acceptances
+return(list(beta_chain = b_chain, rho_chain = r_chain,
+elapse = as.numeric(end_time - start_time, units = "secs"),
+acceptance = accept))
+}
+## exact likelihood
+llik_exact <- function(param){
+static_loglikelihood(y = y, parameters = param, model_config = config_list, method = "exact")
+}
+## likelihood approximate by translated Poisson
+llik_tp <- function(parameters){
+static_loglikelihood(y = y, parameters = parameters, model_config = config_list, method = "tp")
+}
+## likelihood approximated by importance sampling
+particle_config <- list(num_particles = 20)
+llik_is <- function(parameters){
+static_loglikelihood(y = y, parameters = parameters, model_config = config_list, method = "mc", particle_config = particle_config)
+}
+## select likelihood
+llik <- llik_is
+num_mcmc <- 1e3
+result <- mh(num_mcmc, llik)
+cat("[ MH acceptance rate is", round(100*mean(result$acceptance),1),"%]\n")
+cat("[", num_mcmc, "MH iterations performed in ", round(result$elapse,1), "seconds]\n")
+matplot(result$beta_chain, type = 'l')
+matplot(result$rho_chain, type = 'l')
+plot(result$beta_chain[1e2:num_mcmc], logit(result$rho_chain[1e2:num_mcmc]))
+# }
+rinit <- function(){
+## store state of Markov chain in a list
+param <- list(beta = rnorm(1), rho = runif(1))
+## compute posterior and Jacobian term of the proposal at current state
+lpost_current <- llik(param) + lprior(param) + ljacobian(param)
+## if current posterior is -Infinity, set new initial point
+iterate <- 0
+while(is.infinite(lpost_current) && (iterate < 1e4)){
+param <- list(beta = rnorm(1), rho = runif(1))
+lpost_current <- llik(param) + lprior(param) + ljacobian(param)
+iterate <- iterate + 1
+}
+return(list(chain_state = param, lpost = lpost_current))
+}
+## one step of MCMC
+single_kernel <- function(state){
+param <- state$chain_state
+## propose new state
+z <- unbiasedmcmc::fast_rmvnorm_chol(1, zeromean, Sigma_proposal_chol)[1,]
+proposal <- param
+proposal$beta <- param$beta + z[1]
+proposal$rho <- expit(logit(param$rho) + z[2])
+## evaluate target density at proposal + log Jacobian
+lpost_proposal <- lprior(proposal) + llik(proposal) + ljacobian(proposal)
+## MH acceptance step
+if (log(runif(1)) < (lpost_proposal - state$lpost)){
+state$chain_state <- proposal
+state$lpost <- lpost_proposal
+}
+return(state)
+}
+Z <- rinit()
+num_mcmc <- 5e4
+beta_chain <- rep(NA, num_mcmc)
+rho_chain <- rep(NA, num_mcmc)
+for (iteration in 1:num_mcmc){
+Z <- single_kernel(Z)
+beta_chain[iteration] <- Z$chain_state$beta
+rho_chain[iteration] <- Z$chain_state$rho
+}
+matplot(beta_chain, type = 'l')
+matplot(rho_chain, type = 'l')
+# plot(beta_chain[1e2:num_mcmc], logit(rho_chain[1e2:num_mcmc]))
+hist(beta_chain[1e3:num_mcmc])
+hist(rho_chain[1e3:num_mcmc])
+## acceptance ratio:
+cat(round(100*mean(abs(diff(rho_chain)) > 1e-10), 1), "% accept rate\n")
+coupled_kernel <- function(state1, state2){
+identical_ <- FALSE
+param1 <- state1$chain_state
+param2 <- state2$chain_state
+mu1 <- c(param1$beta, logit(param1$rho))
+mu2 <- c(param2$beta, logit(param2$rho))
+## propose new state
+z <- unbiasedmcmc::rmvnorm_reflectionmax(mu1, mu2, Sigma_proposal_chol, Sigma_proposal_chol_inv)
+proposal1 <- list(beta = z$xy[1,1], rho = expit(z$xy[2,1]))
+proposal2 <- list(beta = z$xy[1,2], rho = expit(z$xy[2,2]))
+## evaluate target density at proposal + log Jacobian
+lpost_proposal1 <- lprior(proposal1) + llik(proposal1) + ljacobian(proposal1)
+lpost_proposal2 <- lprior(proposal2) + llik(proposal2) + ljacobian(proposal2)
+## MH acceptance step
+logu <- log(runif(1))
+accept1 <- FALSE; accept2 <- FALSE
+accept1 <- (logu < (lpost_proposal1 - state1$lpost))
+accept2 <- (logu < (lpost_proposal2 - state2$lpost))
+identical_ <- z$identical && accept1 && accept2
+if (accept1){
+state1$chain_state <- proposal1
+state1$lpost <- lpost_proposal1
+}
+if (accept2){
+state2$chain_state <- proposal2
+state2$lpost <- lpost_proposal2
+}
+return(list(state1 = state1, state2 = state2, identical = identical_))
+}
+library(doParallel)
+library(doRNG)
+registerDoParallel(cores = detectCores()-2)
+nrep <- 100
+lag <- 500
+meetingtime.results <- foreach(irep = 1:nrep) %dorng% {
+unbiasedmcmc::sample_meetingtime(single_kernel, coupled_kernel, rinit, lag = lag, max_iterations = 1e4)
+}
+meetingtimes <- sapply(meetingtime.results, function(x) x$meetingtime)
+## compute TV upper bounds based on meeting times
+## see Biswas, Jacob & Vanetti (2019)
+tv_upper_bound_estimates <- function(meetingtimes, L, t){
+return(mean(pmax(0,ceiling((meetingtimes-L-t)/L))))
+}
+niter <- (floor(1.1*max(meetingtimes-lag)))
+upperbounds <- sapply(1:niter, function(t) tv_upper_bound_estimates(meetingtimes, lag, t))
+## plot TV upper bounds as a function of iteration
+hist_noplot <- hist(meetingtimes - lag, plot = F, nclass = 30)
+xgrid <- c(min(hist_noplot$breaks), hist_noplot$mids, max(hist_noplot$breaks))
+densitygrid <- c(0, hist_noplot$density, 0)
+setmytheme()
+g_tvbounds <- qplot(x = 1:niter, y = upperbounds, geom = "line")
+g_tvbounds <- g_tvbounds + ylab("TV upper bounds") + xlab("iteration")
+g_tvbounds <- g_tvbounds + scale_y_continuous(breaks = c(0,1/4,1/2,3/4,1), limits = c(0,1.1))
+g_tvbounds <- g_tvbounds + geom_ribbon(data=data.frame(x = xgrid,
+ymin = rep(0, length(xgrid)),
+y = densitygrid/max(densitygrid)),
+aes(x= x, ymin = ymin, ymax = y, y=NULL), alpha = .75, fill = 'pink') + geom_line()
+g_tvbounds
+###
+sample_coupled_chains <- function(single_kernel, coupled_kernel, rinit, m = 1, lag = 1, max_iterations = Inf, preallocate = 10){
+starttime <- Sys.time()
+state1 <- rinit(); state2 <- rinit()
+dimstate <- length(unlist(state1$chain_state))
+nrowsamples1 <- m+preallocate+lag
+samples1 <- matrix(nrow = nrowsamples1, ncol = dimstate)
+samples2 <- matrix(nrow = nrowsamples1-lag, ncol = dimstate)
+samples1[1,] <- unlist(state1$chain_state)
+samples2[1,] <- unlist(state2$chain_state)
+# current_nsamples1 <- 1
+time <- 0
+for (t in 1:lag){
+time <- time + 1
+state1 <- single_kernel(state1)
+samples1[time+1,] <- unlist(state1$chain_state)
+}
+# current_nsamples1 <- current_nsamples1 + 1
+# iter <- 1
+meetingtime <- Inf
+while ((time < max(meetingtime, m)) && (time < max_iterations)){
+time <- time + 1 # time is lag+1,lag+2,...
+if (is.finite(meetingtime)){
+state1 <- single_kernel(state1)
+state2 <- state1
+} else {
+res_coupled_kernel <- coupled_kernel(state1, state2)
+state1 <- res_coupled_kernel$state1
+state2 <- res_coupled_kernel$state2
+if (res_coupled_kernel$identical){
+meetingtime <- time
+}
+}
+if ((time+1) > nrowsamples1){
+new_rows <- nrowsamples1
+nrowsamples1 <- nrowsamples1 + new_rows
+samples1 <- rbind(samples1, matrix(NA, nrow = new_rows, ncol = dimstate))
+samples2 <- rbind(samples2, matrix(NA, nrow = new_rows, ncol = dimstate))
+}
+samples1[time+1,]     <-  unlist(state1$chain_state)
+samples2[time-lag+1,] <-  unlist(state2$chain_state)
+}
+samples1 <- samples1[1:(time+1),,drop=F]
+samples2 <- samples2[1:(time-lag+1),,drop=F]
+cost <- lag + 2*(meetingtime - lag) + max(0, time - meetingtime)
+currenttime <- Sys.time()
+elapsedtime <- as.numeric(lubridate::as.duration(lubridate::ymd_hms(currenttime) - lubridate::ymd_hms(starttime)), "seconds")
+return(list(samples1 = samples1, samples2 = samples2,
+meetingtime = meetingtime, iteration = time, elapsedtime = elapsedtime, cost = cost))
+}
+## sample coupled chains, plot histograms
+nrep <- 500
+lag <- 250
+k <- lag
+m <- lag * 5
+cchainsresults <- foreach(irep = 1:nrep) %dorng% {
+sample_coupled_chains(single_kernel, coupled_kernel, rinit, lag = lag, m = m, max_iterations = 1e4)
+}
+# cchainsresults[[1]]$samples1
+hist1 <- histogram_c_chains(cchainsresults, component = 1, k = 500, m = 5*lag, nclass = 100)
+hist2 <- histogram_c_chains(cchainsresults, component = 2, k = 500, m = 5*lag, nclass = 100)
+hist1mcmc <- density(beta_chain[1e3:num_mcmc])
+hist2mcmc <- density(rho_chain[1e3:num_mcmc])
+##
+plot_histogram(hist1) + geom_line(data=data.frame(x = hist1mcmc$x, y = hist1mcmc$y), aes(x = x, y = y, xmin = NULL, xmax = NULL, ymin = NULL, ymax = NULL))
+plot_histogram(hist2) + geom_line(data=data.frame(x = hist2mcmc$x, y = hist2mcmc$y), aes(x = x, y = y, xmin = NULL, xmax = NULL, ymin = NULL, ymax = NULL))
+Sigma_proposal
+library(agents)
+rm(list = ls())
+library(agents)
+library(tictoc)
+load("figures/section3/data_setup_hetero.RData");
+source("figures/section3/setup_sis_pmcmc.R");
+burn_in <- 5000
+num_mcmc <- 100 * 10**3 + burn_in;
+dgp_parameters <- c(log(1/(N-1)), 0, dgp_bl1, dgp_bl2, dgp_bg1, dgp_bg2, dgp_config$rho);
+step_size <- 0.08;
+init_config <- dgp_config;
+if(!is.null(init_config$policy)) init_config$policy <- NULL; ## gibbs does not need policy
+### save and output these values
+chain <- matrix(nrow = num_mcmc, ncol = 7); ## each row is a parameter
+accept_chain <- rep(0, num_mcmc);
+lpost_chain <- rep(NA, num_mcmc);
+### instantiate parameters
+set.seed(2020);
+curr_param <- c(rnorm(6,  sd = 3), runif(1)); ### RANDOM INIT
+curr_config <- update_model_config(init_config, curr_param); ### RANDOM INIT
+# curr_param <- dgp_parameters; ### THIS INITIALIZES FROM DGP
+# curr_config <- update_model_config(init_config, curr_param); ## this should be dgp_config
+curr_xx <- sis_xx_initialize(y, init_config);
+curr_lpost <- sis_loglikelihood_complete(y, curr_xx, curr_config) + lprior(curr_param) + ljacobian(curr_param);
+if(is.infinite(curr_lpost)) stop("initialization of the parameters gives 0 likelihood!");
+tic();
+for(imcmc in 1 : num_mcmc){
+## propose theta
+prop_param <- qkernel(curr_param, step_size);
+prop_config <- update_model_config(curr_config, prop_param);
+prop_lpost <- sis_loglikelihood_complete(y, curr_xx, prop_config) + lprior(prop_param) + ljacobian(prop_param);
+## accept and reject theta
+if (log(runif(1)) < (prop_lpost - curr_lpost)){
+accept_chain[imcmc] <- 1
+curr_param <- prop_param;
+curr_lpost <- prop_lpost;
+curr_config <- prop_config;
+}
+## update hidden states
+if(runif(1) < 0.5){
+## swap
+sis_xx_gibbs_swap_full_cpp(curr_xx, curr_config$alpha0, curr_config$lambda, curr_config$gamma);
+}else{
+## single-site
+sis_xx_gibbs_singlesite_full_cpp(curr_xx, y, curr_config$alpha0, curr_config$lambda, curr_config$gamma, curr_config$rho);
+}
+## save the parameters
+chain[imcmc, ] <- curr_param;
+curr_lpost <- sis_loglikelihood_complete(y, curr_xx, curr_config) + lprior(curr_param) + ljacobian(curr_param);
+lpost_chain[imcmc] <- curr_lpost;
+if(imcmc %% 1000 ==0){
+cat("[",imcmc, "out of", num_mcmc, "iterations]\n");
+save.image("figures/section3/data_run_gibbs_randominit.RData");
+}
+}
+toc();
+cat("[acceptance probabilty = ", mean(accept_chain), "]\n");
+save.image("figures/section3/data_run_gibbs_randominit.RData");
+install.packages("tictoc")
+library(agents)
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls());
+library(ggplot2);
+library(ggExtra);
+library(gridExtra);
+load("data_run_gibbs.RData");
+singlesite_accept_chain_dgpinit <- accept_chain;
+singlesite_lpost_chain_dgpinit <- lpost_chain;
+singlesite_param_chain_dgpinit <- chain;
+load("data_run_block_gibbs.RData");
+block_accept_chain_dgpinit <- accept_chain;
+block_lpost_chain_dgpinit <- lpost_chain;
+block_param_chain_dgpinit <- chain;
+load("data_run_pmcmc_final.RData");
+pmcmc_accept_chain_dgpinit <- accept_chain;
+pmcmc_lpost_chain_dgpinit <- lpost_chain;
+pmcmc_param_chain_dgpinit <- chain;
+# load("data_run_oneagentblock_gibbs.RData");
+# oneagent_accept_chain <- accept_chain;
+# oneagent_lpost_chain <- lpost_chain;
+# oneagent_param_chain <- chain;
+load("data_run_pmcmc_randominitial.RData");
+pmcmc_accept_chain_randinit <- accept_chain;
+pmcmc_lpost_chain_randinit <- lpost_chain;
+pmcmc_param_chain_randinit <- chain;
+load("data_run_gibbs_randominit.RData");
+singlesite_accept_chain_randinit <- accept_chain;
+singlesite_lpost_chain_randinit <- lpost_chain;
+singlesite_param_chain_randinit <- chain;
+load("data_run_block_gibbs_randominit.RData");
+block_accept_chain_randinit <- accept_chain;
+block_lpost_chain_randinit <- lpost_chain;
+block_param_chain_randinit <- chain;
+nburn <- burn_in;
+nmcmc <- num_mcmc;
+pmcmc_dgp_df <- data.frame(pmcmc_param_chain_dgpinit[nburn : nmcmc,]);
+names(pmcmc_dgp_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+pmcmc_dgp_df$method <- "pmcmc"
+pmcmc_dgp_df$init <- "dgp"
+singlesite_dgp_df <- data.frame(singlesite_param_chain_dgpinit[nburn : nmcmc,]);
+names(singlesite_dgp_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+singlesite_dgp_df$method <- "singlesite"
+singlesite_dgp_df$init <- "dgp"
+block_dgp_df <- data.frame(block_param_chain_dgpinit[nburn : nmcmc,]);
+names(block_dgp_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+block_dgp_df$method <- "block5"
+block_dgp_df$init <- "dgp"
+pmcmc_rand_df <- data.frame(pmcmc_param_chain_randinit[nburn : nmcmc,]);
+names(pmcmc_rand_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+pmcmc_rand_df$method <- "pmcmc"
+pmcmc_rand_df$init <- "random"
+singlesite_rand_df <- data.frame(singlesite_param_chain_randinit[nburn : nmcmc,]);
+names(singlesite_rand_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+singlesite_rand_df$method <- "singlesite"
+singlesite_rand_df$init <- "random"
+block_rand_df <- data.frame(block_param_chain_randinit[nburn : nmcmc,]);
+names(block_rand_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+block_rand_df$method <- "block5"
+block_rand_df$init <- "random"
+# oneagent_df <- data.frame(oneagent_param_chain[nburn : nmcmc,]);
+# names(oneagent_df) <- c("b01","b02","bl1","bl2","bg1","bg2","rho");
+# oneagent_df$method <- "block1"
+df <- rbind(pmcmc_dgp_df, singlesite_dgp_df, block_dgp_df,
+pmcmc_rand_df, singlesite_rand_df, block_rand_df);
+accept_probability <- double(6);
+accept_probability[1] <- mean(pmcmc_accept_chain_dgpinit);
+accept_probability[2] <- mean(singlesite_accept_chain_dgpinit);
+accept_probability[3] <- mean(block_accept_chain_dgpinit);
+# accept_probability[4] <- mean(oneagent_accept_chain_dgpinit);
+accept_probability[4] <- mean(pmcmc_accept_chain_randinit);
+accept_probability[5] <- mean(singlesite_accept_chain_randinit);
+accept_probability[6] <- mean(block_accept_chain_randinit)
+names(accept_probability) <- c("pmcmc_dgp", "singlesite_dgp", "block5_dgp", "pmcmc_rand", "singlesite_rand","block5_rand");
+print(accept_probability, digits = 6);
+post_mean <- data.frame(method = factor(character(7), levels = c("dgp","pmcmc", "singlesite", "block7", "block1")), b01 = double(7), b02 = double(7), bl1 = double(7), bl2 = double(7), bg1 = double(7), bg2 = double(7), rho = double(7));
+post_mean[1,] <- c("dgp",dgp_parameters);
+post_mean[2,] <- c("pmcmc_dgp", colMeans(pmcmc_param_chain_dgpinit[nburn : nmcmc,]));
+post_mean[3,] <- c("singlesite_dgp", colMeans(singlesite_param_chain_dgpinit[nburn : nmcmc,]));
+post_mean[4,] <- c("block5_dgp", colMeans(block_param_chain_dgpinit[nburn : nmcmc,]));
+# post_mean[5,] <- c("block1", colMeans(oneagent_param_chain[nburn : nmcmc,]));
+# post_mean[5,] <- c("pmcmc_rand", colMeans(pmcmc_param_chain_randinit[nburn: nmcmc, ]));
+post_mean[6, ] <- c("singlesite_dgp", colMeans(singlesite_param_chain_randinit[nburn : nmcmc, ]));
+post_mean[7, ] <- c("singlesite_dgp", colMeans(block_param_chain_randinit[nburn : nmcmc, ]));
+print(post_mean, digits = 4);
+hist_b01 <- ggplot(df, aes(x = b01)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[1], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+hist_b02 <- ggplot(df, aes(x = b02)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[2], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+gridExtra::grid.arrange(hist_b01, hist_b02, ncol = 2);
+hist_bl1 <- ggplot(df, aes(x = bl1)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[3], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+hist_bl2 <- ggplot(df, aes(x = bl2)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[4], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+gridExtra::grid.arrange(hist_bl1, hist_bl2, ncol = 2);
+hist_bg1 <- ggplot(df, aes(x = bg1)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[5], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+hist_bg2 <- ggplot(df, aes(x = bg2)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[6], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+gridExtra::grid.arrange(hist_bg1, hist_bg2, ncol = 2);
+hist_rho <- ggplot(df, aes(x = rho)) +
+geom_histogram(aes( y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins = 50) +
+geom_density(alpha = 0.2) +
+geom_vline(xintercept = dgp_parameters[7], col = "red") +
+facet_grid(rows = vars(method), cols = vars(init)) + theme_bw();
+hist_rho;
+acf_df <- data.frame();
+for(iparameter in 1 : 7){
+acf_df <- rbind(acf_df, data.frame(method = "pmcmc", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(pmcmc_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(singlesite_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "block5", init = "dgp", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(block_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "block1", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(oneagent_param_chain[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "pmcmc",init = "random", lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(pmcmc_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "random",lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(singlesite_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "block5", init = "random",lag = c(1,5,25,75,100),parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(block_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+}
+acf_df <- data.frame();
+for(iparameter in 1 : 7){
+acf_df <- rbind(acf_df, data.frame(method = "pmcmc", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(pmcmc_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(singlesite_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "block5", init = "dgp", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(block_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "block1", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(oneagent_param_chain[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "pmcmc",init = "random", lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(pmcmc_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "random",lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(singlesite_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "block5", init = "random",lag = c(1,5,25,75,100),parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(block_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+}
+acf_df <- data.frame();
+for(iparameter in 1 : 7){
+acf_df <- rbind(acf_df, data.frame(method = "pmcmc", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(pmcmc_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "dgp", lag = c(1,5,25,75,100), parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(singlesite_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "block5", init = "dgp", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(block_param_chain_dgpinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "block1", lag = c(1,5,25,75,100),parameter = names(singlesite_dgp_df)[iparameter], autocorr = acf(oneagent_param_chain[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "pmcmc",init = "random", lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(pmcmc_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+acf_df <- rbind(acf_df, data.frame(method = "singlesite", init = "random",lag = c(1,5,25,75,100), parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(singlesite_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+# acf_df <- rbind(acf_df, data.frame(method = "block5", init = "random",lag = c(1,5,25,75,100),parameter = names(singlesite_rand_df)[iparameter], autocorr = acf(block_param_chain_randinit[nburn : nmcmc, iparameter], lag.max = 100, plot = F)$acf[1 + c(1,5,25,75,100)]));
+}
+acf_df$method <- factor(acf_df$method);
+acf_df$parameter <- factor(acf_df$parameter);
+acf_df$init <- factor(acf_df$init);
+load("data_run_block_gibbs_randominit.RData");
+block_accept_chain_randinit <- accept_chain;
+block_lpost_chain_randinit <- lpost_chain;
+block_param_chain_randinit <- chain;
+imcmc
+nmcmc
+imcmc / nmcmc
+rm( list = ls())
+source("figures/section3/run_block_gibbs.R")
+save.image("figures/section3/data_run_block_gibbs_randominit.RData");
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls());
+library(ggplot2);
+library(ggExtra);
+library(gridExtra);
+load("data_run_pmcmc_randominitial.RData");
+pmcmc_accept_chain_randinit <- accept_chain;
+pmcmc_lpost_chain_randinit <- lpost_chain;
+pmcmc_param_chain_randinit <- chain;
+immcc
+imcmc
+nmcmc
+num_mcmc
+imcmc / num_mcmc
+library(agents)
+devtools::load_all(".")
+load("~/Dropbox/AgentBasedModels/agents/figures/section3/data_run_pmcmc_randominitial.RData")
+for(imcmc in 99101 : num_mcmc){
+## propose
+prop_param <- qkernel(curr_param, step_size);
+prop_config <- update_model_config(curr_config, prop_param);
+prop_lpost <- pf(prop_config) + lprior(prop_param) + ljacobian(prop_param);
+## accept and reject
+if (log(runif(1)) < prop_lpost - curr_lpost){
+accept_chain[imcmc] <- 1;
+curr_param <- prop_param;
+curr_lpost <- prop_lpost;
+}
+lpost_chain[imcmc] <- curr_lpost;
+## save the parameters
+chain[imcmc, ] <- curr_param;
+if(imcmc %% 100 ==0){
+cat("[",imcmc, "out of", num_mcmc, "iterations]\n");
+save.image("figures/section3/data_run_pmcmc_randominitial.RData");
+}
+}
+save.image("figures/section3/data_run_pmcmc_randominitial.RData");
+# plot(lpost_chain, type = "l");
+# ###
+# plot.new()
+# matplot(chain, col = 1: 7, type = "l", lty = 1)
+# legend("topleft", paste(c(1:7)), col= c(1:7) , cex= 0.8,fill= c(1:7))
+# abline(h = dgp_parameters, col =  1:7);
+# mean(accept_chain)
+#
+# colMeans(chain[5000:(imcmc - 1), ])
+# print(dgp_parameters)

@@ -7,6 +7,7 @@ using namespace Rcpp;
 using namespace std;
 
 // this is a header file for all functions releated sampling or resampling
+
 NumericVector get_runifs(const int n);
 
 LogicalVector idchecking_cpp(const int sum_x,

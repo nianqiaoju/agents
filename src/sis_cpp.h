@@ -11,6 +11,12 @@ using namespace std;
 
 // this is a header file for all functions releated to the sis model
 
+NumericMatrix sis_forward_algorithm_cpp(NumericVector logf0, 
+                                        NumericMatrix logdtransition,  
+                                        NumericVector y, 
+                                        NumericVector all_sum_x, 
+                                        double rho);
+
 // the following functions computes alpha given parameters and current state, assuming a fully connected network
 
 // compute alpha(xx) given agent states and parameters
@@ -32,11 +38,6 @@ void sis_xx_gibbs_singlesite_full_cpp(LogicalMatrix xx,
                                       const NumericVector gamma, 
                                       const double rho);
 
-// sample from multinomial distribution given log weights and a uniform draw
-int multinomial_cpp(const NumericVector &logweights, double uniform);
-
-IntegerVector multinomial_resampling_cpp(const NumericVector & weights, int ndraws, const NumericVector & rand);
-
 // blocked gibbs updates
 void sis_xx_gibbs_blocked_full_cpp(LogicalMatrix  xx,
                                    const IntegerVector &y,
@@ -51,15 +52,15 @@ void sis_xx_gibbs_blocked_full_cpp(LogicalMatrix  xx,
 // returns estimate of log marginal likelihood
 // implementations are specific to fully-connected networks
 
-double sis_bpf_full_cpp(const IntegerVector &y,
-  const NumericVector &alpha0,
-  const NumericVector &lambda,
-  const NumericVector &gamma,
-  const double rho,
-  const int num_particles,
-  const double threshold,
-  const int population_size
-  );
+// double sis_bpf_full_cpp(const IntegerVector &y,
+//   const NumericVector &alpha0,
+//   const NumericVector &lambda,
+//   const NumericVector &gamma,
+//   const double rho,
+//   const int num_particles,
+//   const double threshold,
+//   const int population_size
+//   );
 
 double sis_apf_exact_full_cpp(const IntegerVector &y,
   const NumericVector &alpha0,
@@ -71,19 +72,19 @@ double sis_apf_exact_full_cpp(const IntegerVector &y,
   const int population_size
   );
 
-NumericMatrix sis_bif_cpp_tp(const IntegerVector &y,
-  const double lambda_bar,
-  const double gamma_bar);
-
-double sis_csmc_full_cpp(const IntegerVector &y,
-  const NumericVector &alpha0,
-  const NumericVector &lambda,
-  const NumericVector &gamma,
-  const double rho,
-  const int num_particles,
-  const double threshold,
-  const int population_size,
-  const NumericMatrix policy
-  );
+// NumericMatrix sis_bif_cpp_tp(const IntegerVector &y,
+//   const double lambda_bar,
+//   const double gamma_bar);
+// 
+// double sis_csmc_full_cpp(const IntegerVector &y,
+//   const NumericVector &alpha0,
+//   const NumericVector &lambda,
+//   const NumericVector &gamma,
+//   const double rho,
+//   const int num_particles,
+//   const double threshold,
+//   const int population_size,
+//   const NumericMatrix policy
+//   );
 
 #endif

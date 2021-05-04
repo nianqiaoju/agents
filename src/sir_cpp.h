@@ -8,12 +8,23 @@ using namespace std;
 
 // this is a header file for all functions releated to the sir model
 
-NumericVector sir_bif_cpp(const IntegerVector & y,
+NumericVector sir_bif_create_cpp(const IntegerVector & y,
                           const IntegerMatrix & nexts,
                           const IntegerMatrix & nexti,
                           const NumericMatrix & logfbar,
                           const double & rho,
                           const int & N);
+
+void sir_bif_update_cpp(NumericVector & logpolicy, 
+                        IntegerMatrix & nexts,
+                        IntegerMatrix & nexti,
+                        NumericMatrix & logfbar,
+                        const double & lambda,
+                        const double & gamma, 
+                        const double & rho,
+                        const IntegerVector & y,
+                        const int & N,
+                        const double & c);
 
 
 List create_fbar_matrix(const double lambda, 
@@ -29,16 +40,55 @@ void update_fbar_matrix(IntegerMatrix & nexts,
                         const int & N,
                         const double & c);
 
-
-
 int sir_get_state_index(const int s, const int i, const int N){
   int index = (N - s) * (N- s + 1) / 2 + N - s - i;
   return(index);
 }
 
-double sir_logfbar(const int snow, const int inow, const int snext, const int inext,
-               const double lambda, const double gamma, const int N){
+double sir_logfbar(const int & snow,
+                   const int & inow, 
+                   const int & snext, 
+                   const int & inext,
+                   const double & lambda, 
+                   const double & gamma, 
+                   const int & N){
   return(R::dbinom(snow + inow - inext - snext, inow, gamma, true) + R::dbinom(snow - snext, snow, lambda * inow / N, true));
+};
+
+void sir_csmc_update_f_matrix(NumericMatrix & logf,
+                         const IntegerVector & xxprev,
+                         const NumericVector & lambda_v,
+                         const NumericVector & gamma_v,
+                         const int & N);
+
+NumericVector smallpox_bif_create_cpp(const IntegerVector & y,
+                                 const IntegerMatrix & nexts,
+                                 const IntegerMatrix & nexti,
+                                 const NumericMatrix & logfbar,
+                                 const double & rho,
+                                 const int & N);
+
+void smallpox_bif_update_cpp(NumericVector & logpolicy, 
+                        IntegerMatrix & nexts,
+                        IntegerMatrix & nexti,
+                        NumericMatrix & logfbar,
+                        const double & lambda,
+                        const double & gamma, 
+                        const double & rho,
+                        const IntegerVector & y,
+                        const int & N,
+                        const double & c);
+
+IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
+                           const NumericVector & lambda,
+                           const NumericVector & gamma, 
+                           const IntegerVector & scount,
+                           const IntegerVector & icount,
+                           const int & N,
+                           const int & P);
+
+bool xory(bool x, bool y){
+  return(x || y);
 };
 
 #endif

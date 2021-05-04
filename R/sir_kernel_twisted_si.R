@@ -9,8 +9,8 @@
 #' 
 #' 
 sir_kernel_twisted_si <- function(xxprev, st, it, model_config){
-  alpha_i <- sir_get_alpha_i(xxprev, model_config);
-  xxnew <- integer(model_config$N);
+  alpha_i <- sir_get_alpha_i(xxprev, model_config); # individual transition probabilities
+  xxnew <- integer(model_config$N); # stores the next states
   recovery_prev <- which(xxprev == 2);
   rcount_prev <- length(recovery_prev);
   xxnew[recovery_prev] <- 2; ## recovered stay there 
