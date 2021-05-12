@@ -4,18 +4,20 @@
 \alias{sir_csmc}
 \title{controlled SMC for SIR model}
 \usage{
-sir_csmc(y, model_config, particle_config, policy = NULL)
+sir_csmc(y, model_config, particle_config, logpolicy)
 }
 \arguments{
-\item{y}{, observations, length (T+1)}
+\item{y}{a list of observations, length (T+1).}
 
 \item{model_config}{a list containing model parameters, must pass the test of check_model_config;}
 
 \item{particle_config}{a list specifying the particle filter, must pass the test of check_particle_config;}
+
+\item{logpolicy}{an array with dimension (N+1) by (N+1) by (T+1);}
 }
 \value{
 the particle filter outcome, must contain estimate of log marginal likelihood and effective sample size.
 }
 \description{
-marginal likelihood estimations and samples from the posterior distribution of agent states
+unbiased approximation of the marginal likelihood.
 }
