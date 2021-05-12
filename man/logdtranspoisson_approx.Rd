@@ -12,8 +12,9 @@ logdtranspoisson_approx(alpha, y = NULL)
 \item{xx}{default is NULL, when x == NULL, output is the entire density function}
 }
 \value{
-log-density
+approximate log densities.
 }
 \description{
-density approximation of the Poission binomial distribution in log scale
+density approximation of the Poission binomial distribution in log scale. \\
+NOTE: the densities do not sum to 1.
 }
