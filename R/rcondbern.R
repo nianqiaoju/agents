@@ -4,8 +4,8 @@
 #' @param sum_x sum of the Bernoullis
 #' @param alpha vector of success probabilities
 #' @param exact binary, if TRUE, then use id-check sampling, otherwise use the metropolis algorithm. Default is TRUE.
-#' @param num_sample default is NULL. 
-#' @return sample, a length N binary vector, with 1 at the chosen entry
+#' @param num_sample default is NULL. If NULL and \code{exact == F}, then perform MCMC with \eqn{N log(N)} steps. 
+#' @return sample, a length N binary vector, with TRUE at the chosen entry
 #'
 #' @export
 #' 

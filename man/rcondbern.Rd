@@ -13,10 +13,10 @@ rcondbern(sum_x, alpha, exact = TRUE, num_sample = NULL)
 
 \item{exact}{binary, if TRUE, then use id-check sampling, otherwise use the metropolis algorithm. Default is TRUE.}
 
-\item{num_sample}{default is NULL.}
+\item{num_sample}{default is NULL. If NULL and \code{exact == F}, then perform MCMC with \eqn{N log(N)} steps.}
 }
 \value{
-sample, a length N binary vector, with 1 at the chosen entry
+sample, a length N binary vector, with TRUE at the chosen entry
 }
 \description{
 Gives one sample from the conditional Bernoulli distribution, either with exact method or with MCMC. 
