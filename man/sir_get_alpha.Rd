@@ -15,15 +15,15 @@ sir_get_alpha_plusone(agent_states, model_config)
 \arguments{
 \item{agent_states}{the agent states at some time t}
 
-\item{model_config}{a list containing model parameters}
+\item{model_config}{a list containing model parameters, which must pass the function \code{check_model_config()}.}
 }
 \value{
 \code{sir_get_alpha_sir(agent_states,model_config)} returns a matrix with three rows : alpha_s, alpha_i and alpha_r.
 
-\code{sir_get_alpha_i(agent_states, model_config)} returns alpha_i
+\code{sir_get_alpha_i(agent_states, model_config)} returns alpha_i as a vector.
 
-\code{sir_get_alpha_plusone(agent_states, model_config)} returns a vector, whose entries are alpha_i or alpha_r or 0 when previous states are 0, 1, 2 respectively.
+\code{sir_get_alpha_plusone(agent_states, model_config)} returns a vector, whose entries are the probabilities that p(x[t+1,k] = x[t,k] + 1);
 }
 \description{
-the alpha function for SIR process.
+The alpha function for SIR process gives the transition probabilities from \eqn{x[t,n]} to \eqn{x[t+1,n]} given \eqn{x[t]}.
 }

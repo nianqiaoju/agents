@@ -2,7 +2,7 @@
 % Please edit documentation in R/sis_get_alpha.R
 \name{sis_get_alpha}
 \alias{sis_get_alpha}
-\title{Evoluation of the SIS model}
+\title{transition probabilty of the SIS process}
 \usage{
 sis_get_alpha(agent_state, model_config)
 }
@@ -15,5 +15,5 @@ sis_get_alpha(agent_state, model_config)
 the alpha vector
 }
 \description{
-for the sis model, given xt,computes the probability of x[t+1,k] = 1 for each k
+for the sis model, given xt and static attributes, computes the probability of x[t+1,k] = 1 for each k
 }

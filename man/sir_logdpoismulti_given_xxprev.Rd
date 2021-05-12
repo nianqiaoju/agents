@@ -12,5 +12,5 @@ sir_logdpoismulti_given_xxprev(xxprev, model_config)
 \item{model_config}{a list containing parameters and network structure}
 }
 \description{
-p(it, rt | x[t-1])
+the density of p(it, rt | x[t-1])
 }
