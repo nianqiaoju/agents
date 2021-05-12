@@ -29,8 +29,8 @@ if (tune){
 # [MSE of log(z_hat) is  0.6061536 with  20 particles]
 # [with step size 0.2 ,MH acceptance rate is  0.2397818 ]
 if(tune){
-  exact_loglik <- static_loglikelihood(y = y[size_N], parameters = dgp, model_config = config_list[[size_N]], method = "exact")
-  is_loglik <- sapply(1:1000,function(x) static_loglikelihood(y = y[size_N], parameters = dgp, model_config = config_list[[size_N]], method = "mc", particle_config = list(num_particles = num_particles)))
+  exact_loglik <- static_loglikelihood_marginal(y = y[size_N], parameters = dgp, model_config = config_list[[size_N]], method = "exact")
+  is_loglik <- sapply(1:1000,function(x) static_loglikelihood_marginal(y = y[size_N], parameters = dgp, model_config = config_list[[size_N]], method = "mc", particle_config = list(num_particles = num_particles)))
   cat("[MSE of log(z_hat) is ", mean((exact_loglik - is_loglik)**2), "with ", num_particles, "particles]\n")
 }
 
@@ -109,7 +109,7 @@ mh <- function(num_mcmc, llik){
 ## choose the right step-size for kernel q using the largest population
 if(tune){
   llik <- function(param){
-    static_loglikelihood(y = y[size_N], parameters = param, model_config = config_list[[size_N]], method = "exact")
+    static_loglikelihood_marginal(y = y[size_N], parameters = param, model_config = config_list[[size_N]], method = "exact")
   }
   # llik(list(beta = rnorm(1), rho = runif(1)))
   result <- mh(num_mcmc, llik)

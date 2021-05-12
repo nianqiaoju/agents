@@ -26,25 +26,25 @@ for (irep in 1 : num_repeats){
 
   ## define functions to use for likelihood etc. 
   llik_exact <- function(parameters){
-    static_loglikelihood(y = y, parameters = parameters, model_config = model_config, method = "exact")
+    static_loglikelihood_marginal(y = y, parameters = parameters, model_config = model_config, method = "exact")
   }
   llik_tp <- function(parameters){
-    static_loglikelihood(y = y, parameters = parameters, model_config = model_config,  method = "tp")
+    static_loglikelihood_marginal(y = y, parameters = parameters, model_config = model_config,  method = "tp")
   }
   llik_is <- function(parameters){
-    static_loglikelihood(y = y, parameters = parameters, model_config = model_config, method = "mc", particle_config = particle_config)
+    static_loglikelihood_marginal(y = y, parameters = parameters, model_config = model_config, method = "mc", particle_config = particle_config)
   }
   llik_complete <- function(parameters, xx){
-    alpha_ <- static_get_alpha(beta = parameters$beta, features = features)
+    alpha_ <- get_rates_from_features(beta = parameters$beta, features = features)
     dbinom(x = y, size = sum(xx), prob = parameters$rho, log = T) + lw.logsum(dbinom(x = xx, size = 1, prob = alpha_, log = T))
   }
   xx_gibbs_scan <- function(parameters,xx){
     rho_ <- parameters$rho
-    alpha_ <- static_get_alpha(beta = parameters$beta, features = features)
+    alpha_ <- get_rates_from_features(beta = parameters$beta, features = features)
     return(as.numeric(static_xx_gibbs_cpp(xx_previous = xx, alpha = alpha_, rho = parameters$rho, y = y)))
   }
   xx_swap <- function(parameters, xx){
-    alpha_<- static_get_alpha(beta = parameters$beta, features = features)
+    alpha_<- get_rates_from_features(beta = parameters$beta, features = features)
     return(as.numeric(static_xx_swap(xx, alpha_)))
   }
   ## exact mh

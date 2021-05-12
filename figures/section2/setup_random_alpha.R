@@ -11,11 +11,7 @@ features <- matrix(rnorm(N, mean = 4), nrow = num_features) # random features
 dgp <- list(beta = 0.3, rho = 0.8)
 
 ## compute alpha
-## should we have functions in the package just to simulate settings
-## such as the function "static_get_alpha"? Not sure it's necessary.
-## perhaps best to only have functions in the package R/ folder when they're
-## of general interest
-alpha <- static_get_alpha(features = features, beta =  dgp$beta)
+alpha <- get_rates_from_features(features = features, beta =  dgp$beta)
 
 ## make model_config for each sub-population
 config_list <- list()

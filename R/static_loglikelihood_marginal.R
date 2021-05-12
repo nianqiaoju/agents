@@ -1,5 +1,5 @@
 #' @title Static Model Log Likelihood
-#' @description  compute log likelihood of observing y in the static model
+#' @description  compute log marginal likelihood of observing y in the static model
 #' @param parameters a list containing beta and rho
 #' @param model_config a list containing population size and agent features
 #' @param method can be from the list c('tp','exact','mc')
@@ -7,9 +7,9 @@
 #' @export
 #' 
 
-static_loglikelihood <- function(y, parameters, model_config,  method = 'tp', particle_config = NULL){
+static_loglikelihood_marginal <- function(y, parameters, model_config,  method = 'tp', particle_config = NULL){
   rho_ <- parameters$rho
-  alpha_ <- static_get_alpha(beta = parameters$beta, features = model_config$features)
+  alpha_ <- get_rates_from_features(beta = parameters$beta, features = model_config$features)
   ## error messages
   method <- match.arg(method, choices = c('tp', 'exact', 'mc'))
   if (method == 'mc' & is.null(particle_config$num_particles)){

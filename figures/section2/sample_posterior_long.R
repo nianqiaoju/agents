@@ -19,7 +19,7 @@ y <- y[2];
 
 ## define functions to use for likelihood etc. 
 llik_exact <- function(parameters){
-  static_loglikelihood(y = y, parameters = parameters, model_config = model_config, method = "exact")
+  static_loglikelihood_marginal(y = y, parameters = parameters, model_config = model_config, method = "exact")
 }
 
 cat("[ running long exact mh chain for population size", n, "]\n")
