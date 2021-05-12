@@ -2,16 +2,31 @@
 % Please edit documentation in R/logsumexp.R
 \name{lw.normalize}
 \alias{lw.normalize}
-\title{Normalize log weights}
+\alias{lw.logsum}
+\alias{lw.logmean}
+\alias{lw.logsd}
+\title{Normalize log weights using the log-sum-exp trick.}
 \usage{
 lw.normalize(lw)
+
+lw.logsum(lw)
+
+lw.logmean(lw)
+
+lw.logsd(lw)
 }
 \arguments{
 \item{lw}{log weights}
 }
 \value{
-normalized weights
+\code{lw.normalize} returns normalized weights.
+
+\code{lw.normalize} computes the log normalizing constant
+
+\code{lw.logmean} computes log of mean of the vector \eqn{exp(lw)}.
+
+\code{lw.logsd} computes log of standard deviation of the vector \eqn{exp(lw)}.
 }
 \description{
-Normalize log weights
+Normalize log weights using the log-sum-exp trick.
 }

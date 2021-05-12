@@ -1,52 +1,47 @@
-#' Normalize log weights
-#'
+#' @title Normalize log weights using the log-sum-exp trick.
 #' @param lw log weights
-#' @return normalized weights
+#' @return \code{lw.normalize} returns normalized weights.
 #' @export
 
 lw.normalize <- function(lw){
-  # input: lw - log weights 
   # output: normalized weights, aka they must sum to 1 
-  maxlw <- max(lw)
+  # if all the weights are zero, then raise an error message.
+  maxlw <- max(lw);
   if(is.infinite(maxlw)){
-    return(rep(1 / length(lw), length(lw))); 
-    ## if all the weights are 0, returnrs rep(1/n,n). this might be very dangerous!
+    stop("all the weights are zero!");
   }else{
-    lw <- lw - maxlw
-    return(exp(lw)/sum(exp(lw)))
+    lw <- lw - maxlw;
+    return(exp(lw)/sum(exp(lw)));
   }
-  # return(exp(lw)/exp(lw.logsum(lw)))
 }
 
-#' log-normalizing constant
-#' @param lw log-weights
-#' @return log-normalizing constant
+#' @rdname lw.normalize
+#' @return \code{lw.normalize} computes the log normalizing constant 
 #' @export
 lw.logsum <- function(lw){
   # input: lw - log weights 
   # output: sum of weights, i.e. log(sum(exp(lw)))
   maxlw <- max(lw)
   if(is.infinite(maxlw)){
-    return(-Inf)
+    warning("all the weights are zero");
+    return(-Inf);
   }
   else{
-    return(maxlw + log(sum(exp(lw - maxlw))))
+    return(maxlw + log(sum(exp(lw - maxlw))));
   }
 }
 
-#' log-mean 
-#' @param lw log-weights
-#' @return log of the mean 
+#' @rdname lw.normalize
+#' @return \code{lw.logmean} computes log of mean of the vector \eqn{exp(lw)}.
 #' @export
 #' 
 lw.logmean <- function(lw){
-  lw.logsum(lw) - log(length(lw))
+  lw.logsum(lw) - log(length(lw));
 }
 
-#' log-sd
-#' @param  lw log-weights
-#' @return log of the standard deviation 
+#' @rdname lw.normalize
+#' @return \code{lw.logsd} computes log of standard deviation of the vector \eqn{exp(lw)}.
 #' @export
 lw.logsd <- function(lw){
-  0.5 * lw.logmean(2 * log(abs(exp(lw) - exp(lw.logmean(lw)) )))
+  0.5 * lw.logmean(2 * log(abs(exp(lw) - exp(lw.logmean(lw)))));
 }

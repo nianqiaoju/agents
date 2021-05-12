@@ -13,7 +13,7 @@ sir_get_alpha_i(agent_states, model_config)
 sir_get_alpha_plusone(agent_states, model_config)
 }
 \arguments{
-\item{agent_states}{the agent states at some time t}
+\item{agent_states}{a vector containing agent states at time \eqn{t}.}
 
 \item{model_config}{a list containing model parameters, which must pass the function \code{check_model_config()}.}
 }
