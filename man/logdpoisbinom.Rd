@@ -7,10 +7,10 @@
 logdpoisbinom(alpha)
 }
 \arguments{
-\item{alpha}{vector of N probabilities (numbers between 0 and 1)}
+\item{alpha}{vector of N probabilities (numbers between 0 and 1).}
 }
 \value{
-the entire density function in a vector of length N+1
+the entire density function in a vector of length N+1.
 }
 \description{
 Density function for Poisson binomial distribution with parameters alpha, 

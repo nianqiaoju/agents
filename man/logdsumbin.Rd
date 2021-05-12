@@ -4,18 +4,20 @@
 \alias{logdsumbin}
 \title{Sum of two independent Binomials}
 \usage{
-logdsumbin(i_current, lambda_bar, gamma_bar, N)
+logdsumbin(it, lbar, gbar, N)
 }
 \arguments{
-\item{lambda_bar}{average infection rate}
+\item{it}{number of infections.}
 
-\item{gamma_bar}{average recovery rate}
+\item{lbar}{average infection rate.}
 
-\item{it}{number of infections}
+\item{gbar}{average recovery rate.}
+
+\item{N}{integer, must satisfy N = length(lbar).}
 }
 \value{
-log transition densities p(i(t+1) = 0 : N | it, lambda_bar, gamma_bar);
+log transition densities p(i(t+1) = 0 : N | it, lbar, gbar);
 }
 \description{
-computes the log density of SumBinomial distribition, parametrized by lambda_bar, gamma_bar and it
+computes the log density of SumBinomial distribition, parametrized by lbar, gbar and it.
 }
