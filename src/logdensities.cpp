@@ -13,17 +13,23 @@ NumericVector logdpoisbinom_cpp(const NumericVector &alpha) {
   int N = alpha.length();
   NumericVector previous_log_densities (N + 1, R_NegInf);
   NumericVector current_log_densities (N + 1, R_NegInf);
+  NumericVector lalpha = log(alpha);
+  NumericVector lalpha_ = log(1 - alpha);
   
   // initilaize the recursion, start with q(0,N) and q(1,N);
-  previous_log_densities[0] = log(1 - alpha[N - 1]);
-  previous_log_densities[1] = log(alpha[N - 1]);
+  previous_log_densities[0] = lalpha_[N - 1];
+  previous_log_densities[1] = lalpha[N - 1];
+  // previous_log_densities[0] = log(1 - alpha[N - 1]);
+  // previous_log_densities[1] = log(alpha[N - 1]);
   
   double ls1, ls2, maxls;
   for(int n = N - 1; n > 0; n--){
     current_log_densities[0] = previous_log_densities[0] + log(1 - alpha[n - 1]);
     for(int h = 1; h <= N - n + 1 ; h++){
-      ls1 = log(alpha[n - 1]) + previous_log_densities[h - 1];
-      ls2 = log(1 - alpha[n - 1]) + previous_log_densities[h];
+      // ls1 = log(alpha[n - 1]) + previous_log_densities[h - 1];
+      // ls2 = log(1 - alpha[n - 1]) + previous_log_densities[h];
+      ls1 = lalpha[n - 1] + previous_log_densities[h - 1];
+      ls2 = lalpha_[n - 1] + previous_log_densities[h];
       maxls = max(ls1, ls2);
       current_log_densities[h] = log(exp(ls1 - maxls) + exp(ls2 - maxls)) + maxls;
     }
@@ -61,6 +67,5 @@ double logdbern_sum_cpp (const NumericVector & alpha, const  LogicalVector &x){
 
 /*** R
 alpha <- c(1,0,0.5)
-logdpoisbinom_cpp(alpha)
-logdpoisbinom(alpha)
+exp(logdpoisbinom_cpp(alpha))
 */

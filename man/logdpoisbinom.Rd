@@ -15,5 +15,5 @@ the entire density function in a vector of length N+1
 \description{
 Density function for Poisson binomial distribution with parameters alpha, 
 which is the distribution of the sum of Bernoulli random variables, each with a different
-probability P(X = 1) = alpha.
+probability \eqn{P(X_i = 1) = \alpha_i}.
 }
