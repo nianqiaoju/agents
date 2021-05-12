@@ -1,5 +1,5 @@
 #' @title Complete Likelihood for SIS model
-#' @description computes log-likelihood p(x, y) when agent states and counts are observed
+#' @description computes \math{log p(x, y)} when agent states and counts are observed
 #' @param y a vector of observations
 #' @param agent_state binary matrix of size N by length(y)
 #' @param model_config a list containing parametesr and network structure

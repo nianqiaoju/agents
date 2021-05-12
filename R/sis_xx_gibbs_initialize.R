@@ -1,14 +1,10 @@
-#' @title Initalize Gibbs sampler for SIS model
-#' @description initialize the agent states for the SIS model given observations such that the complete likelihood is not zero.
-#' @param y a list of population observations 
-#' @param model_config a list that must contain
-#' \itemize{
-#' \item N : population size
-#' \item rho : reporting rate
-#' }
-#' @return agent_states
+#' @title Gibbs sampler for hidden agent states in the SIS model
+#' @description  It initializes the agent states for the SIS model given observations. This function ensures that that the complete likelihood is not zero.
+#' @param y a vector of population observations 
+#' @param model_config a list containing model parameters, must pass the function \code{check_model_config}.
+#' @return a binary matrix of agent states in the SIS model. It ensures that the complete likelihood is not zero.
 
-sis_xx_initialize <- function(y, model_config){
+sis_xx_gibbs_initialize <- function(y, model_config){
   num_observations <- length(y)
   ## instantiate the agent states
   agent_states <- matrix(FALSE, nrow = model_config$N, ncol = num_observations)
