@@ -12,7 +12,7 @@ get_rates_from_features(beta, features)
 \item{features}{N by num_features matrix}
 }
 \value{
-
+a vector expit(beta * features)
 }
 \description{
 Parameters for the SIS and SIR process

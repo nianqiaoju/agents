@@ -9,10 +9,10 @@ sis_loglikelihood_complete(y, agent_states, model_config)
 \arguments{
 \item{y}{a vector of observations}
 
-\item{model_config}{a list containing parametesr and network structure}
+\item{model_config}{a list containing parametesr and network structure, passing the check of \code{check_model_config()}.}
 
 \item{agent_state}{binary matrix of size N by length(y)}
 }
 \description{
-computes log-likelihood p(x, y) when agent states and counts are observed
+computes \math{log p(x, y)} when agent states and counts are observed
 }
