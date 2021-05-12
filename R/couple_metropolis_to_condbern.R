@@ -25,7 +25,7 @@ couple_metropolis_to_condbern <- function(alpha, sum_x, num_mcmc, compute_sse = 
     sse_vector <- NA 
   }
   ## simulate chain 1 from stationarity
-  xx1 <- idcheck_sampling(sum_x = sum_x, alpha = alpha)
+  xx1 <- idchecking_cpp(sum_x,alpha, runif(N));
   ## simulate chain 2 from random initialization
   xx2 <- rep(0, N)
   xx2[sample.int(n = N, size = sum_x, replace = FALSE)] <- 1

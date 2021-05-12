@@ -1,5 +1,6 @@
-#' @title Metropolis algorithm targeting the Conditional Bernoulli distribution 
-#' @description This is an approximation of idcheck_sampling. Given the current state x, 
+#' @title Metropolis algorithm targeting the conditional Bernoulli distribution 
+#' @description The MCMC transition kernel for the conditional Bernoulli distribution. 
+#' Given the current state x, 
 #' it proposes to switch a randomly chosen 1 with a randomly chosen 0. 
 #' @param sum_x sum of the samples 
 #' @param alpha vector of probabilities, length N

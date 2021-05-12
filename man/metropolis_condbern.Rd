@@ -2,7 +2,7 @@
 % Please edit documentation in R/metropolis_condbern.R
 \name{metropolis_condbern}
 \alias{metropolis_condbern}
-\title{Metropolis algorithm targeting the Conditional Bernoulli distribution}
+\title{Metropolis algorithm targeting the conditional Bernoulli distribution}
 \usage{
 metropolis_condbern(sum_x, alpha, num_sample = 10, save_history = FALSE)
 }
@@ -17,6 +17,7 @@ metropolis_condbern(sum_x, alpha, num_sample = 10, save_history = FALSE)
 either xx (a vector of size N) or  xx_matrix (a binary matrix of size num_samples by N)
 }
 \description{
-This is an approximation of idcheck_sampling. Given the current state x, 
+The MCMC transition kernel for the conditional Bernoulli distribution. 
+Given the current state x, 
 it proposes to switch a randomly chosen 1 with a randomly chosen 0.
 }
