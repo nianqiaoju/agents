@@ -30,12 +30,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // lw_logsum_cpp
-double lw_logsum_cpp(NumericVector lw);
+double lw_logsum_cpp(const NumericVector& lw);
 RcppExport SEXP _agents_lw_logsum_cpp(SEXP lwSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type lw(lwSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type lw(lwSEXP);
     rcpp_result_gen = Rcpp::wrap(lw_logsum_cpp(lw));
     return rcpp_result_gen;
 END_RCPP
@@ -48,6 +48,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericVector& >::type lw(lwSEXP);
     rcpp_result_gen = Rcpp::wrap(lw_normalize_cpp(lw));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lw_logsum_normalize_cpp
+double lw_logsum_normalize_cpp(NumericVector& lw);
+RcppExport SEXP _agents_lw_logsum_normalize_cpp(SEXP lwSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector& >::type lw(lwSEXP);
+    rcpp_result_gen = Rcpp::wrap(lw_logsum_normalize_cpp(lw));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -400,6 +411,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_logdbern_sum_cpp", (DL_FUNC) &_agents_logdbern_sum_cpp, 2},
     {"_agents_lw_logsum_cpp", (DL_FUNC) &_agents_lw_logsum_cpp, 1},
     {"_agents_lw_normalize_cpp", (DL_FUNC) &_agents_lw_normalize_cpp, 1},
+    {"_agents_lw_logsum_normalize_cpp", (DL_FUNC) &_agents_lw_logsum_normalize_cpp, 1},
     {"_agents_metropolis_condbern_cpp", (DL_FUNC) &_agents_metropolis_condbern_cpp, 3},
     {"_agents_rcppeigen_hello_world", (DL_FUNC) &_agents_rcppeigen_hello_world, 0},
     {"_agents_rcppeigen_outerproduct", (DL_FUNC) &_agents_rcppeigen_outerproduct, 1},

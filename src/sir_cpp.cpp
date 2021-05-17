@@ -43,11 +43,11 @@ NumericVector sir_bif_create_cpp(const IntegerVector & y,
       logg[i] = R::dbinom(y[t], i, rho, true);
     }
     
-    // compute the conditional expecation for each value of st and it
+    // compute the conditional expectation for each value of st and it
     for(int snow = N - y[t]; snow >= 0; snow--){
       istatenow = sir_get_state_index(snow, N - snow, N); // first eligible state for snow;
       for(int inow = N - snow; inow >= y[t]; inow--){
-        curr_sum = R_NegInf; // initialize the conditonal expectation to 0
+        curr_sum = R_NegInf; // initialize the conditional expectation to 0
         // can also set curr_sum to a very small value to satisfy the sufficient support condition
         cntstatenext = 0;
         while(cntstatenext < logfbar.ncol() && nexti(istatenow, cntstatenext) >= 0){
@@ -255,6 +255,7 @@ void update_fbar_matrix(IntegerMatrix & nexts,
  * compute the transition probability from xx[t-1] to the aggregated state (st, it)
  * log f(st, it | x(t-1), theta)
  * it directly modifies the logf matrix
+ * the current implementation assumes that the network is fully connected
  */
 
 // [[Rcpp::export]]
