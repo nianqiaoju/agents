@@ -12,7 +12,7 @@ sir_apf <- function(y, model_config, particle_config){
   ess <- rep(1, num_observations);
   ancestors <- c(1:particle_config$num_particles);
   logweights <- logw <- rep(-Inf, particle_config$num_particles)
-  logW <- rep(log(1 / particle_config$num_particles), particle_config$num_particles);
+  logW <- rep(0, particle_config$num_particles);
   ### logw: cumulative weights, used for resampling
   ### logW: log of normalized logw
   ### logweights: potential at the current step, use these to compute normalizing constant
@@ -63,24 +63,23 @@ sir_apf <- function(y, model_config, particle_config){
       logvt[,p] <- logdpoisbinom_cpp(alpha = alphats[,p])[current_support_y + 1] + dbinom(x = y[t + 1], size = current_support_y, prob = model_config$rho, log = TRUE);
     }
     logweights <- lw_logsum_normalize_byCol(logvt);## logvt has been normalized in this step
-    logweights[is.na(logweights)] <- - Inf
     loglikelihood[t + 1] <- lw.logsum(logweights) - log(particle_config$num_particles);
     if(particle_config$clock) runtimes[t+1] <- Sys.time()
     if(all(is.infinite(logweights))){## if particles degenerate
       break
     }
-    ## resample: normalize the log weights
-    weights <- lw.normalize(logweights)
-    ess[t] <- 1 / sum(weights**2) / particle_config$num_particles;
     ## adaptive resampling
+    logw <- logW + logweights;
+    weights <- lw.normalize(logw);
+    ess[t] <- 1 / sum(weights**2) / particle_config$num_particles;
     if(ess[t] < particle_config$ess_threshold | any(weights == 0)){
       ancestors <- sample.int(n = particle_config$num_particles, prob = weights, replace = TRUE);
-      logW <- rep(-log(particle_config$num_particles), particle_config$num_particles);
+      logW <- rep(0, particle_config$num_particles);
       logw <- rep(0, particle_config$num_particles);
       if(particle_config$verbose) cat("RESAMPLE!\ness at step t =", t, "is", ess[t],"\n");
     }else{
       ancestors <- 1 : particle_config$num_particles;
-      logW <- log(weights);
+      logW <- log(weights); ## this is equivalent to logW <- logW + logweights
       if(particle_config$verbose) cat("ess at step t =", t, "is", ess[t],"\n");
     }
     ## sample it given y and sample xt given it
