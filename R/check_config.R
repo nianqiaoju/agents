@@ -10,7 +10,7 @@ check_model_config <- function(model_config){
     if(is.null(model_config$adjacency_matrix_b)) stop("please specify the normalized adjacency matrix");
     if(any(colSums(model_config$adjacency_matrix_b) != 1)){
       warning("the adjacency matrix is not normalized");
-      adjacency_matrix_b <- apply(adjacency_matrix_b, 2, function(col) col / sum(col));
+      # adjacency_matrix_b <- apply(adjacency_matrix_b, 2, function(col) col / sum(col));
     } 
   }
   # if(is.null(model_config$features)) stop("please specify agent features");
@@ -19,6 +19,7 @@ check_model_config <- function(model_config){
   if(is.null(model_config$lambda)) stop("lambda is null");
   if(is.null(model_config$gamma)) stop("gamma is null");
   if(is.null(model_config$rho)) stop("rho is null");
+  model_config;
 }
 
 
@@ -33,7 +34,8 @@ check_particle_config <- function(particle_config){
   if(is.null(particle_config$clock)) particle_config$clock <- FALSE;
   if(is.null(particle_config$verbose)) particle_config$verbose <- FALSE;
   if(is.null(particle_config$exact)){
-    warning("using exact Poisbinom densities and exact CondBern samplers");
-    particle_config$exact <- TRUE;
+   stop("using exact Poisbinom densities or exact CondBern samplers?");
+    particle_config$exact <- T;
   }
+  particle_config;
 }
