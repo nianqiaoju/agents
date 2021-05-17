@@ -81,7 +81,7 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
       st_weights <- lw.normalize(fpsi[, it[p] + 1, p]);
       st[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = st_weights);
     } 
-    ## sammple xt given st and it, for fully connected networks
+    ## sammple xt given st and it (for fully connected networks)
     xts <- sir_sample_x_given_si(xts, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
   }
   return(sum(lognormalisingconstant));

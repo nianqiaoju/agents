@@ -1,5 +1,5 @@
 #' @title Twisted SIR kernels
-#' @description  samples from xt given it, rt and x(t-1). This function is used in sir_apf.R.
+#' @description  samples from xt given it and x(t-1). This function is used in sir_apf.R.
 #' @param xxprev agent states at the previous time;
 #' @param it infection counts at the current time;
 #' @param model_config a list containing model parameters, must pass the test of check_model_config;
