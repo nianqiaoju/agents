@@ -11,6 +11,6 @@ double lw_logsum_cpp (const NumericVector &lw);
 // takes a vectors of log weights and normalize the weights
 NumericVector lw_normalize_cpp(const NumericVector & lw);
 
-double lw_logsum_normalize_cpp(NumericVector &lw);
+NumericVector lw_logsum_normalize_byCol(NumericMatrix &lw);
 
 #endif

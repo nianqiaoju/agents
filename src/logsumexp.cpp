@@ -46,26 +46,33 @@ NumericVector lw_normalize_cpp(const NumericVector & lw){
 }
 
 /*
-normalize logweights to weights (in place) 
-and return the log normalizing constant.
+for each column, normalize logweights to weights (in place) 
+and return the log normalizing constants in a vector.
 This function is used in sir_apf.
-@param lw log weights
+@param lw a matrix, each column is a vector of log weights
+@return a vector containing the log normalizing constant of each column
 @export
  */
 // [[Rcpp::export]]
-double lw_logsum_normalize_cpp(NumericVector &lw){
+NumericVector lw_logsum_normalize_byCol(NumericMatrix &lw){
   double sum_weights = 0;
-  double maxlw = max(lw);
-  if(traits::is_infinite<REALSXP>(maxlw)){
-    return R_NegInf;
-  }else{
-    for(int i = 0; i < lw.size(); i++){
-      lw[i] = lw[i] - maxlw;
-      sum_weights += exp(lw[i]);
+  double maxlw;
+  NumericVector logsums(lw.ncol());
+  for(int icol = 0; icol < lw.ncol(); icol++){
+    maxlw = max(lw( _, icol));
+    sum_weights = 0;
+    if(traits::is_infinite<REALSXP>(maxlw)){
+      logsums[icol] = R_NegInf;
+    }else{
+      for(int irow = 0; irow < lw.nrow(); irow++){
+        lw(irow,icol) = lw(irow, icol) - maxlw;
+        sum_weights += exp(lw(irow,icol));
+      }
+      for(int irow = 0; irow < lw.size(); irow++){
+        lw(irow, icol) = exp(lw(irow, icol)) / sum_weights; // lw has become the normalized weights
+      }
+      logsums[icol] = maxlw + log(sum_weights);
     }
-    for(int i = 0; i < lw.size(); i++){
-      lw[i] = exp(lw[i]) / sum_weights;
-    }
-    return maxlw + log(sum(exp(lw - maxlw)));
   }
+  return logsums;
 }
