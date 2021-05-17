@@ -68,7 +68,7 @@ NumericVector lw_logsum_normalize_byCol(NumericMatrix &lw){
         lw(irow,icol) = lw(irow, icol) - maxlw;
         sum_weights += exp(lw(irow,icol));
       }
-      for(int irow = 0; irow < lw.size(); irow++){
+      for(int irow = 0; irow < lw.nrow(); irow++){
         lw(irow, icol) = exp(lw(irow, icol)) / sum_weights; // lw has become the normalized weights
       }
       logsums[icol] = maxlw + log(sum_weights);
