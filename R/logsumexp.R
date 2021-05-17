@@ -8,7 +8,7 @@ lw.normalize <- function(lw){
   # if all the weights are zero, then raise an error message.
   maxlw <- max(lw);
   if(is.infinite(maxlw)){
-    stop("all the weights are zero!");
+    warning("all the weights are zero!");
   }else{
     lw <- lw - maxlw;
     return(exp(lw)/sum(exp(lw)));

@@ -23,6 +23,10 @@ lw_normalize_cpp <- function(lw) {
     .Call('_agents_lw_normalize_cpp', PACKAGE = 'agents', lw)
 }
 
+lw_logsum_normalize_byCol <- function(lw) {
+    .Call('_agents_lw_logsum_normalize_byCol', PACKAGE = 'agents', lw)
+}
+
 metropolis_condbern_cpp <- function(sum_x, alpha, num_mcmc) {
     .Call('_agents_metropolis_condbern_cpp', PACKAGE = 'agents', sum_x, alpha, num_mcmc)
 }

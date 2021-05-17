@@ -31,6 +31,7 @@ check_particle_config <- function(particle_config){
   if(is.null(particle_config$num_particles)) stop("please specify number of particles");
   if(is.null(particle_config$ess_threshold)) stop("please give ess threshold for resampling");
   if(is.null(particle_config$save_genealogy)) particle_config$save_genealogy <- FALSE;
+  if(is.null(particle_config$save_particles)) particle_config$save_particles <- FALSE;
   if(is.null(particle_config$clock)) particle_config$clock <- FALSE;
   if(is.null(particle_config$verbose)) particle_config$verbose <- FALSE;
   if(is.null(particle_config$exact)){

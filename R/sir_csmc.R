@@ -1,5 +1,5 @@
 #' @title controlled SMC for SIR model
-#' @description unbiased approximation of the marginal likelihood.
+#' @description unbiased approximation of the marginal likelihood. For this function, the observation density is \deqn{y_t \mid x_t \sim \textrm{Bin}(I(x_t),\rho).}
 #' @param y a list of observations, length (T+1).
 #' @param model_config a list containing model parameters, must pass the test of check_model_config;
 #' @param particle_config a list specifying the particle filter, must pass the test of check_particle_config;
@@ -8,14 +8,14 @@
 #' @export
 
 sir_csmc <- function(y, model_config, particle_config, logpolicy){
-  if(is.null(particle_config$ess_threshold)) stop("Please specify ess_threshold for resampling.");
   if(particle_config$verbose) cat("[ess threhold is", particle_config$ess_threshold,"]\n");
   ## logpolicy[st + 1, it + 1,t + 1] = logpsi(st, it | y[t:T])
   num_observations <- length(y);
   logf <- matrix(0, nrow = model_config$N + 1, ncol = model_config$N + 1);
-  ## sum of lognormalising constant is final log marginal likelihood estimate
+  ## lognormalizingconstant contains intermediate normalizing constants
+  ## sum of lognormalizingconstant is the final log marginal likelihood estimate
   lognormalisingconstant <- rep(- Inf, num_observations);
-  ## average weight is one step normalisingconstant
+  ## average weight is one step normalizing constant
   logweights <- logw <- rep(-Inf, particle_config$num_particles)
   logW <- rep(log(1 / particle_config$num_particles), particle_config$num_particles);
   ### logw: cumulative weights, used for resampling
@@ -25,7 +25,7 @@ sir_csmc <- function(y, model_config, particle_config, logpolicy){
   ess <- rep(0, num_observations)
   eves <- c(1 : particle_config$num_particles)
   ## storage and samples
-  particles <- array(NA, dim = c(N, num_observations, particle_config$num_particles));
+  if(particle_config$save_particles) particles <- array(NA, dim = c(N, num_observations, particle_config$num_particles));
   it <- st <- rep(NA, particle_config$num_particles);
   xts <- matrix(NA, ncol = particle_config$num_particles, nrow = N);
   fpsi <- array(NA, dim = c(N + 1, N + 1, particle_config$num_particles)); ## this is the product of f * psi 
