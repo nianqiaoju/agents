@@ -17,5 +17,5 @@ sir_kernel_twisted_i(xxprev, it, model_config)
 a sample of xxprev, vector of length N.
 }
 \description{
-samples from xt given it, rt and x(t-1). This function is used in sir_apf.R.
+samples from xt given it and x(t-1). This function is used in sir_apf.R.
 }

@@ -7,10 +7,11 @@
 sir_logdpoismulti_given_xxprev(xxprev, model_config)
 }
 \arguments{
-\item{xxprev}{x[t-1]}
+\item{xxprev}{\eqn{x[t-1]}}
 
 \item{model_config}{a list containing parameters and network structure}
 }
 \description{
-the density of p(it, rt | x[t-1])
+the log density of \eqn{p(st,it | x[t-1])}. 
+NOTE: if network is full, then we can use sir_csmc_update_f_matrix instead.
 }
