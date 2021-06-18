@@ -95,6 +95,10 @@ sir_sample_x_given_si <- function(xx, lambda, gamma, scount, icount, N, P) {
     .Call('_agents_sir_sample_x_given_si', PACKAGE = 'agents', xx, lambda, gamma, scount, icount, N, P)
 }
 
+boarding_bif_create_cpp <- function(y, lambda, gamma, rho, N, c) {
+    .Call('_agents_boarding_bif_create_cpp', PACKAGE = 'agents', y, lambda, gamma, rho, N, c)
+}
+
 sis_get_alpha_full_cpp <- function(xx, lambda, gamma) {
     .Call('_agents_sis_get_alpha_full_cpp', PACKAGE = 'agents', xx, lambda, gamma)
 }

@@ -5,7 +5,7 @@
 using namespace Rcpp;
 using namespace std;
 
-/* perform the BIF approximation for the SIR model, that observes I partially
+/* perform the BIF approximation for the SIR model, that observes icount partially
  * after the approximate trasition kernel fbar has been created by create_fbar_matrix 
  * or modified in update_fbar_matrix
  */
@@ -252,8 +252,8 @@ void update_fbar_matrix(IntegerMatrix & nexts,
 
 /* this function will run within the controlled particle filter
  * this is the cpp implementation of sir_logdpoismulti
- * compute the transition probability from xx[t-1] to the aggregated state (st, it)
- * log f(st, it | x(t-1), theta)
+ * compute the transition probability from x[t-1] to the aggregated state (st, it)
+ * log f(st, it | x[t-1], theta)
  * it directly modifies the logf matrix
  * the current implementation assumes that the network is fully connected
  */
@@ -492,3 +492,78 @@ IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
   }
   return xx;
 };
+
+/*
+this function is written for the boarding school example, because N = 763 is large;
+it is equivalent to running create_fbar_matrix and sir_bif_create_cpp
+current implementation assumes network_type == "full";
+*/
+
+// [[Rcpp::export]]
+NumericVector boarding_bif_create_cpp(const IntegerVector & y,
+                                      const double & lambda, 
+                                      const double & gamma, 
+                                      const double & rho,
+                                      const int & N,
+                                      const double & c){
+  // current implementation assumes network_type == "full"
+  int days = y.size();
+  // Rcout << "observation length = " <<  days <<"\n";
+
+  // initialize the policy vector to -Inf
+  NumericVector logpolicy((N+1) * (N+1)  * days);
+  std::fill(logpolicy.begin(), logpolicy.end(), R_NegInf);
+  // deal with the terminal time first
+  int t = days - 1;
+  // Rprintf("at day t = %i\n", t);
+  for(int inow = N; inow >= y[t]; inow--){
+    for(int snow = 0; snow + inow <= N; snow++){
+      // Rprintf("s = %i, i = %i\n", snow, inow);
+      logpolicy[t * (N+1) * (N+1) + (N+1) * inow + snow] = R::dbinom(y[t], inow, rho, true);
+    }
+  }
+  NumericVector logg(N + 1);
+  double curr_sum, add_item, curr_max;
+  int snow, inow, snext, inext, supper, slower, iupper, ilower;
+  for(int t = days - 2; t >= 0; t--){
+    // Rprintf("at day t = %i\n", t);
+    // update observation densities at time t
+    std::fill(logg.begin(), logg.end(), R_NegInf);
+    for(int i = y[t]; i <= N; i++){
+      logg[i] = R::dbinom(y[t], i, rho, true);
+    }
+    
+    // compute the conditional expectation for each value of st and it
+    for(int snow = N - y[t]; snow >= 0; snow--){
+      for(int inow = N - snow; inow >= y[t]; inow--){// snow and inow defines a current state
+        curr_sum = R_NegInf; // initialize the conditional expectation to 0 , can also set curr_sum to a very small value to satisfy the sufficient support condition
+        // enumerate over states (snext,inext) given (snow, inow)
+        slower = snow * (1 - inow * lambda / N) - c * sqrt(N) / 2;
+        supper = snow * (1 - inow * lambda / N) + c * sqrt(N) / 2 + 0.5;
+        slower = max(0, slower);
+        supper = min(snow, supper);
+        for(int snext = supper; snext >= slower; snext--){
+          ilower = inow + snow - snext - inow * gamma - c * sqrt(N) / 2;
+          iupper = inow + snow - snext - inow * gamma + c * sqrt(N) / 2 + 0.5;
+          ilower = max(snow - snext, ilower);
+          iupper = min(inow + snow - snext, iupper);
+          for(int inext = iupper; inext >= ilower; inext--){
+            // snext and inext defines a future state 
+            // here we consider only a subset of (snext,inext). subset size is determined by c. 
+            add_item = sir_logfbar(snow, inow, snext, inext, lambda, gamma, N) + logpolicy[(t + 1) * (N+1) * (N+1) + (N+1) * inext + snext];
+            if(!Rcpp::traits::is_infinite<REALSXP>(add_item)){
+              curr_max = max(curr_sum, add_item);
+              curr_sum = log(exp(curr_sum - curr_max) + exp(add_item - curr_max)) + curr_max;
+            }
+          }
+        }
+        // psi_t(st,it) is observation density * conditional expectation
+        logpolicy[t * (N+1) * (N+1) + (N+1) * (inow) + snow] = curr_sum + logg[inow];
+      }
+    }
+  }
+  // convert vector to  3d-array
+  IntegerVector dim = {N+1, N+1, days};
+  logpolicy.attr("dim") = dim;
+  return logpolicy;
+} 

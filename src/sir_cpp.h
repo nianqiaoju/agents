@@ -91,4 +91,10 @@ bool xory(bool x, bool y){
   return(x || y);
 };
 
+NumericVector boarding_bif_create_cpp(const IntegerVector & y,
+                                      const double & lambda, 
+                                      const double & gamma, 
+                                      const double & rho,
+                                      const int & N,
+                                      const double & c); // current implementation assumes network_type == "full"
 #endif

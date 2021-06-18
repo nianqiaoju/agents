@@ -41,7 +41,7 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   for (t in 1 : (num_observations - 1)){
     ## expectation of psi[t+1] given x[t]
     for (p in 1 : num_particles){
-      sir_csmc_update_f_matrix(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N); ## changes the matrix logf
+      sir_csmc_update_f_matrix(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N); ## changes the matrix logf, which stores the kernel f(snext,inext given xnow),
       fpsi[ , , p] <- logf + logpolicy[ ,  , t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , , p]);
     }
@@ -74,11 +74,11 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
     }
     ## sample xnext according to the twisted kernel 
     for (p in 1 : num_particles){
-      ## sample it and st 
+      ## sample it and st from current_infection_suport = 0,1,...,N
       it_logweights <- apply(fpsi[ , , p], 2 , lw.logsum) ## the column indices correspond to icount
       it[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = lw.normalize(it_logweights));
       st_weights <- lw.normalize(fpsi[, it[p] + 1, p]);
-      st[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = st_weights);
+      st[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = st_weights); 
     } 
     ## sammple xt given st and it (for fully connected networks)
     xts <- sir_sample_x_given_si(xts, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
