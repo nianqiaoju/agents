@@ -15,11 +15,10 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   lognormalisingconstant <- rep(- Inf, num_observations); ## sum of lognormalising constant is final log marginal likelihood estimate
   ## logw: cumulative weights, used for resampling
   ## logW: log of normalized logw
-  logweights <- logw <- rep(-Inf, num_particles); ## average of weights is one step normalisingconstant
-  logW <- rep(log(1 / num_particles), num_particles);
+  logweights <- logw  <- logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
   ## storage and samples
   it <- st <- rep(NA, num_particles);
-  xts <- matrix(NA, ncol = num_particles, nrow = N);
+  xts <- matrix(NA, ncol = num_particles, nrow = model_config$N);
   logf <- matrix(0, nrow = model_config$N + 1, ncol = model_config$N + 1); ##stores the kernel f(snext,inext given xnow), updated for each time and each particle
   fpsi <- array(NA, dim = c(N + 1, N + 1, num_particles)); ## this is the product of f * psi 
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
@@ -63,13 +62,13 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
     ess <- 1 / sum(weights ** 2) / num_particles;
     if(ess < ess_threshold | any(is.infinite(logweights))){## adaptive resampling
       ancester <- sample.int(n = num_particles, prob = weights, replace = TRUE); ## resample
-      logW <- rep(-log(num_particles), num_particles); ## update logW
-      logw <- rep(0, num_particles); ## update logw
+      logw <- logW <- rep(0, num_particles); ## update logw and logW
       ## re-indexing
-      xts <- xts[ , ancester]
-      it <- it[ ancester ]
-      st <- st[ ancester ] 
-      fpsi <- fpsi[ , , ancester]
+      xts <- xts[ , ancester];
+      it <- it[ ancester ];
+      st <- st[ ancester ]; 
+      fpsi <- fpsi[ , , ancester];
+      rm(ancester);
     }else{
       logW <- log(weights); ## this is cumulative. it is equivalent to logW <- normalized(logw)
     }

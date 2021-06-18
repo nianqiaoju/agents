@@ -11,7 +11,10 @@ sir_logdpoismulti_given_xxprev(xxprev, model_config)
 
 \item{model_config}{a list containing parameters and network structure}
 }
+\value{
+the matrix containing log densities of \eqn{p(st,it | x[t-1])}.
+}
 \description{
-the log density of \eqn{p(st,it | x[t-1])}. 
+compute the transition probability from xx[t-1] to the aggregated state (st, it). 
 NOTE: if network is full, then we can use sir_csmc_update_f_matrix instead.
 }

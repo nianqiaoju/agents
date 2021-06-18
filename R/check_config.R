@@ -1,5 +1,5 @@
 #' @title check  model configurations
-#' @description this functionc checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.
+#' @description this function checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.
 #' @param model_config a list that must contain: TODO
 #' @export
 check_model_config <- function(model_config){
@@ -19,7 +19,7 @@ check_model_config <- function(model_config){
   if(is.null(model_config$lambda)) stop("lambda is null");
   if(is.null(model_config$gamma)) stop("gamma is null");
   if(is.null(model_config$rho)) stop("rho is null");
-  model_config;
+  # model_config;
 }
 
 

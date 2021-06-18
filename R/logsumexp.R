@@ -23,7 +23,7 @@ lw.logsum <- function(lw){
   # output: sum of weights, i.e. log(sum(exp(lw)))
   maxlw <- max(lw)
   if(is.infinite(maxlw)){
-    warning("all the weights are zero");
+    # warning("all the weights are zero");
     return(-Inf);
   }
   else{

@@ -19,5 +19,5 @@ sir_csmc(y, model_config, particle_config, logpolicy)
 the particle filter outcome, must contain estimate of log marginal likelihood and effective sample size.
 }
 \description{
-unbiased approximation of the marginal likelihood.
+unbiased approximation of the marginal likelihood. For this function, the observation density is \deqn{y_t \mid x_t \sim \textrm{Bin}(I(x_t),\rho)}.
 }
