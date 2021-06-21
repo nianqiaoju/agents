@@ -6,6 +6,47 @@
 
 using namespace Rcpp;
 
+// boarding_all_lowdim_states
+IntegerMatrix boarding_all_lowdim_states(const int N);
+RcppExport SEXP _agents_boarding_all_lowdim_states(SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(boarding_all_lowdim_states(N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// boarding_lowdim2index
+int boarding_lowdim2index(const int N, const int scnt, const int icnt);
+RcppExport SEXP _agents_boarding_lowdim2index(SEXP NSEXP, SEXP scntSEXP, SEXP icntSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const int >::type scnt(scntSEXP);
+    Rcpp::traits::input_parameter< const int >::type icnt(icntSEXP);
+    rcpp_result_gen = Rcpp::wrap(boarding_lowdim2index(N, scnt, icnt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// boarding_bif_create_cpp
+NumericMatrix boarding_bif_create_cpp(const IntegerVector& y, const IntegerMatrix& all_lowdim_states, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_create_cpp(SEXP ySEXP, SEXP all_lowdim_statesSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type all_lowdim_states(all_lowdim_statesSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_cpp(y, all_lowdim_states, lambda, gamma, rho, N, c));
+    return rcpp_result_gen;
+END_RCPP
+}
 // logdpoisbinom_cpp
 NumericVector logdpoisbinom_cpp(const NumericVector& alpha);
 RcppExport SEXP _agents_logdpoisbinom_cpp(SEXP alphaSEXP) {
@@ -167,6 +208,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sir_logfbar
+double sir_logfbar(const int& snow, const int& inow, const int& snext, const int& inext, const double& lambda, const double& gamma, const int& N);
+RcppExport SEXP _agents_sir_logfbar(SEXP snowSEXP, SEXP inowSEXP, SEXP snextSEXP, SEXP inextSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type snow(snowSEXP);
+    Rcpp::traits::input_parameter< const int& >::type inow(inowSEXP);
+    Rcpp::traits::input_parameter< const int& >::type snext(snextSEXP);
+    Rcpp::traits::input_parameter< const int& >::type inext(inextSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(sir_logfbar(snow, inow, snext, inext, lambda, gamma, N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sir_bif_create_cpp
 NumericVector sir_bif_create_cpp(const IntegerVector& y, const IntegerMatrix& nexts, const IntegerMatrix& nexti, const NumericMatrix& logfbar, const double& rho, const int& N);
 RcppExport SEXP _agents_sir_bif_create_cpp(SEXP ySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP rhoSEXP, SEXP NSEXP) {
@@ -298,22 +356,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// boarding_bif_create_cpp
-NumericVector boarding_bif_create_cpp(const IntegerVector& y, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
-RcppExport SEXP _agents_boarding_bif_create_cpp(SEXP ySEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
-    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_cpp(y, lambda, gamma, rho, N, c));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sis_get_alpha_full_cpp
 NumericVector sis_get_alpha_full_cpp(const LogicalVector& xx, const NumericVector& lambda, const NumericVector& gamma);
 RcppExport SEXP _agents_sis_get_alpha_full_cpp(SEXP xxSEXP, SEXP lambdaSEXP, SEXP gammaSEXP) {
@@ -423,6 +465,9 @@ END_RCPP
 RcppExport SEXP _rcpp_module_boot_condbernmcmc_module();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_agents_boarding_all_lowdim_states", (DL_FUNC) &_agents_boarding_all_lowdim_states, 1},
+    {"_agents_boarding_lowdim2index", (DL_FUNC) &_agents_boarding_lowdim2index, 3},
+    {"_agents_boarding_bif_create_cpp", (DL_FUNC) &_agents_boarding_bif_create_cpp, 7},
     {"_agents_logdpoisbinom_cpp", (DL_FUNC) &_agents_logdpoisbinom_cpp, 1},
     {"_agents_logdbern_sum_cpp", (DL_FUNC) &_agents_logdbern_sum_cpp, 2},
     {"_agents_lw_logsum_cpp", (DL_FUNC) &_agents_lw_logsum_cpp, 1},
@@ -437,6 +482,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_idchecking_cpp", (DL_FUNC) &_agents_idchecking_cpp, 3},
     {"_agents_multinomial_resampling_cpp", (DL_FUNC) &_agents_multinomial_resampling_cpp, 3},
     {"_agents_multinomial_cpp", (DL_FUNC) &_agents_multinomial_cpp, 2},
+    {"_agents_sir_logfbar", (DL_FUNC) &_agents_sir_logfbar, 7},
     {"_agents_sir_bif_create_cpp", (DL_FUNC) &_agents_sir_bif_create_cpp, 6},
     {"_agents_sir_bif_update_cpp", (DL_FUNC) &_agents_sir_bif_update_cpp, 10},
     {"_agents_create_fbar_matrix", (DL_FUNC) &_agents_create_fbar_matrix, 4},
@@ -445,7 +491,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_smallpox_bif_create_cpp", (DL_FUNC) &_agents_smallpox_bif_create_cpp, 6},
     {"_agents_smallpox_bif_update_cpp", (DL_FUNC) &_agents_smallpox_bif_update_cpp, 10},
     {"_agents_sir_sample_x_given_si", (DL_FUNC) &_agents_sir_sample_x_given_si, 7},
-    {"_agents_boarding_bif_create_cpp", (DL_FUNC) &_agents_boarding_bif_create_cpp, 6},
     {"_agents_sis_get_alpha_full_cpp", (DL_FUNC) &_agents_sis_get_alpha_full_cpp, 3},
     {"_agents_sis_xx_gibbs_blocked_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_blocked_full_cpp, 8},
     {"_agents_sis_xx_gibbs_singlesite_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_singlesite_full_cpp, 6},

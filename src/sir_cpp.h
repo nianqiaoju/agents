@@ -2,6 +2,7 @@
 #define _INCL_SIR_
 #include <RcppEigen.h>
 
+
 // [[Rcpp::depends(RcppEigen)]]
 using namespace Rcpp;
 using namespace std;
@@ -40,10 +41,8 @@ void update_fbar_matrix(IntegerMatrix & nexts,
                         const int & N,
                         const double & c);
 
-int sir_get_state_index(const int s, const int i, const int N){
-  int index = (N - s) * (N- s + 1) / 2 + N - s - i;
-  return(index);
-}
+int sir_get_state_index(const int s, const int i, const int N);
+
 
 double sir_logfbar(const int & snow,
                    const int & inow, 
@@ -51,9 +50,7 @@ double sir_logfbar(const int & snow,
                    const int & inext,
                    const double & lambda, 
                    const double & gamma, 
-                   const int & N){
-  return(R::dbinom(snow + inow - inext - snext, inow, gamma, true) + R::dbinom(snow - snext, snow, lambda * inow / N, true));
-};
+                   const int & N);
 
 void sir_csmc_update_f_matrix(NumericMatrix & logf,
                          const IntegerVector & xxprev,
@@ -86,15 +83,7 @@ IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
                            const IntegerVector & icount,
                            const int & N,
                            const int & P);
+bool xory(bool x, bool y);
 
-bool xory(bool x, bool y){
-  return(x || y);
-};
 
-NumericVector boarding_bif_create_cpp(const IntegerVector & y,
-                                      const double & lambda, 
-                                      const double & gamma, 
-                                      const double & rho,
-                                      const int & N,
-                                      const double & c); // current implementation assumes network_type == "full"
 #endif
