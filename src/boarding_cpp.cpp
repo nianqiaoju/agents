@@ -9,6 +9,13 @@ using namespace std;
 /* 
  * Given population size N, there are (N+1) * N / 2 low-dimensional states (s,i) possible. 
  * we create a matrix that stores all these states. 
+ * 
+ * 0-based index | s | i 
+ * --------------|---|----
+ *     0         | N | 0 
+ *---------------|---|----
+ *     1         |N-1| 1 
+ *---------------|---|---- 
  */
 // [[Rcpp::export]]
 IntegerMatrix boarding_all_lowdim_states(const int N){

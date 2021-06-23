@@ -58,23 +58,6 @@ void sir_csmc_update_f_matrix(NumericMatrix & logf,
                          const NumericVector & gamma_v,
                          const int & N);
 
-NumericVector smallpox_bif_create_cpp(const IntegerVector & y,
-                                 const IntegerMatrix & nexts,
-                                 const IntegerMatrix & nexti,
-                                 const NumericMatrix & logfbar,
-                                 const double & rho,
-                                 const int & N);
-
-void smallpox_bif_update_cpp(NumericVector & logpolicy, 
-                        IntegerMatrix & nexts,
-                        IntegerMatrix & nexti,
-                        NumericMatrix & logfbar,
-                        const double & lambda,
-                        const double & gamma, 
-                        const double & rho,
-                        const IntegerVector & y,
-                        const int & N,
-                        const double & c);
 
 IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
                            const NumericVector & lambda,

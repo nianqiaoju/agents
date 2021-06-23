@@ -304,41 +304,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// smallpox_bif_create_cpp
-NumericVector smallpox_bif_create_cpp(const IntegerVector& y, const IntegerMatrix& nexts, const IntegerMatrix& nexti, const NumericMatrix& logfbar, const double& rho, const int& N);
-RcppExport SEXP _agents_smallpox_bif_create_cpp(SEXP ySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP rhoSEXP, SEXP NSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexts(nextsSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexti(nextiSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
-    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(smallpox_bif_create_cpp(y, nexts, nexti, logfbar, rho, N));
-    return rcpp_result_gen;
-END_RCPP
-}
-// smallpox_bif_update_cpp
-void smallpox_bif_update_cpp(NumericVector& logpolicy, IntegerMatrix& nexts, IntegerMatrix& nexti, NumericMatrix& logfbar, const double& lambda, const double& gamma, const double& rho, const IntegerVector& y, const int& N, const double& c);
-RcppExport SEXP _agents_smallpox_bif_update_cpp(SEXP logpolicySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP ySEXP, SEXP NSEXP, SEXP cSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector& >::type logpolicy(logpolicySEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexts(nextsSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexti(nextiSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type logfbar(logfbarSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
-    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    smallpox_bif_update_cpp(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c);
-    return R_NilValue;
-END_RCPP
-}
 // sir_sample_x_given_si
 IntegerMatrix sir_sample_x_given_si(IntegerMatrix& xx, const NumericVector& lambda, const NumericVector& gamma, const IntegerVector& scount, const IntegerVector& icount, const int& N, const int& P);
 RcppExport SEXP _agents_sir_sample_x_given_si(SEXP xxSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP scountSEXP, SEXP icountSEXP, SEXP NSEXP, SEXP PSEXP) {
@@ -447,6 +412,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// smallpox_bif_create_cpp
+NumericVector smallpox_bif_create_cpp(const IntegerVector& y, const IntegerMatrix& nexts, const IntegerMatrix& nexti, const NumericMatrix& logfbar, const double& rho, const int& N);
+RcppExport SEXP _agents_smallpox_bif_create_cpp(SEXP ySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP rhoSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexts(nextsSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nexti(nextiSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(smallpox_bif_create_cpp(y, nexts, nexti, logfbar, rho, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// smallpox_bif_update_cpp
+void smallpox_bif_update_cpp(NumericVector& logpolicy, IntegerMatrix& nexts, IntegerMatrix& nexti, NumericMatrix& logfbar, const double& lambda, const double& gamma, const double& rho, const IntegerVector& y, const int& N, const double& c);
+RcppExport SEXP _agents_smallpox_bif_update_cpp(SEXP logpolicySEXP, SEXP nextsSEXP, SEXP nextiSEXP, SEXP logfbarSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP ySEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector& >::type logpolicy(logpolicySEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexts(nextsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type nexti(nextiSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
+    smallpox_bif_update_cpp(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c);
+    return R_NilValue;
+END_RCPP
+}
 // static_xx_gibbs_cpp
 LogicalVector static_xx_gibbs_cpp(LogicalVector xx_previous, NumericVector alpha, double rho, int y);
 RcppExport SEXP _agents_static_xx_gibbs_cpp(SEXP xx_previousSEXP, SEXP alphaSEXP, SEXP rhoSEXP, SEXP ySEXP) {
@@ -488,8 +488,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_create_fbar_matrix", (DL_FUNC) &_agents_create_fbar_matrix, 4},
     {"_agents_update_fbar_matrix", (DL_FUNC) &_agents_update_fbar_matrix, 7},
     {"_agents_sir_csmc_update_f_matrix", (DL_FUNC) &_agents_sir_csmc_update_f_matrix, 5},
-    {"_agents_smallpox_bif_create_cpp", (DL_FUNC) &_agents_smallpox_bif_create_cpp, 6},
-    {"_agents_smallpox_bif_update_cpp", (DL_FUNC) &_agents_smallpox_bif_update_cpp, 10},
     {"_agents_sir_sample_x_given_si", (DL_FUNC) &_agents_sir_sample_x_given_si, 7},
     {"_agents_sis_get_alpha_full_cpp", (DL_FUNC) &_agents_sis_get_alpha_full_cpp, 3},
     {"_agents_sis_xx_gibbs_blocked_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_blocked_full_cpp, 8},
@@ -497,6 +495,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_sis_xx_gibbs_swap_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_swap_full_cpp, 4},
     {"_agents_sis_forward_algorithm_cpp", (DL_FUNC) &_agents_sis_forward_algorithm_cpp, 5},
     {"_agents_sis_apf_exact_full_cpp", (DL_FUNC) &_agents_sis_apf_exact_full_cpp, 8},
+    {"_agents_smallpox_bif_create_cpp", (DL_FUNC) &_agents_smallpox_bif_create_cpp, 6},
+    {"_agents_smallpox_bif_update_cpp", (DL_FUNC) &_agents_smallpox_bif_update_cpp, 10},
     {"_agents_static_xx_gibbs_cpp", (DL_FUNC) &_agents_static_xx_gibbs_cpp, 4},
     {"_rcpp_module_boot_condbernmcmc_module", (DL_FUNC) &_rcpp_module_boot_condbernmcmc_module, 0},
     {NULL, NULL, 0}
