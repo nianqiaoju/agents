@@ -28,7 +28,14 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   ## mu0(s0,i0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
   ## the normalising constant is logz0
   logmu <- logdpoisbinom(model_config$alpha0);
-  logposterior <- apply(lowdimstates, 1, function(si) (si[2] + si[1] == model_config$N) * logmu[1 + si[2]]);
+  x0 <- function(si){
+    if(si[2] + si[1] == model_config$N){
+      return(logmu[1+si[2]])
+    }else{
+      return(-Inf)
+    }
+  }
+  logposterior <- apply(lowdimstates, 1, function(si) x0(si));
   logposterior <- logposterior + logpolicy[, t + 1];
   maxlogposterior <- max(logposterior);
   logposterior <- logposterior - maxlogposterior;
@@ -44,7 +51,7 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   for (t in 1 : (num_observations - 1)){
     ## expectation of psi[t+1] given x[t]
     ## update alphas2i, alphai2i, and logf
-    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$neighbors, model_config$N);
+    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$neighbors - 1, model_config$N);
     for (p in 1 : num_particles){
       fpsi[ , p] <- logf[,p] + logpolicy[ ,  t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , p]);
