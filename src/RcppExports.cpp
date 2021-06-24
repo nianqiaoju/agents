@@ -30,9 +30,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// boarding_bif_create_cpp
-NumericMatrix boarding_bif_create_cpp(const IntegerVector& y, const IntegerMatrix& all_lowdim_states, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
-RcppExport SEXP _agents_boarding_bif_create_cpp(SEXP ySEXP, SEXP all_lowdim_statesSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+// boarding_bif_create
+NumericMatrix boarding_bif_create(const IntegerVector& y, const IntegerMatrix& all_lowdim_states, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_create(SEXP ySEXP, SEXP all_lowdim_statesSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -43,7 +43,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
     Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_cpp(y, all_lowdim_states, lambda, gamma, rho, N, c));
+    rcpp_result_gen = Rcpp::wrap(boarding_bif_create(y, all_lowdim_states, lambda, gamma, rho, N, c));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -64,9 +64,74 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// boarding_logf_update
-void boarding_logf_update(NumericMatrix logf, NumericMatrix alphas2i, NumericMatrix alphai2i, const IntegerMatrix& xts, const NumericVector& lambda, const NumericVector& gamma, const IntegerMatrix& neighbors, const int& N);
-RcppExport SEXP _agents_boarding_logf_update(SEXP logfSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP xtsSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP neighborsSEXP, SEXP NSEXP) {
+// boarding_fbar_create
+List boarding_fbar_create(const double lambda, const double gamma, const int N, const double c);
+RcppExport SEXP _agents_boarding_fbar_create(SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(boarding_fbar_create(lambda, gamma, N, c));
+    return rcpp_result_gen;
+END_RCPP
+}
+// boarding_fbar_update
+void boarding_fbar_update(NumericMatrix logfbar, IntegerMatrix nextsi, const double lambda, const double gamma, const double N, const double c);
+RcppExport SEXP _agents_boarding_fbar_update(SEXP logfbarSEXP, SEXP nextsiSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type nextsi(nextsiSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double >::type c(cSEXP);
+    boarding_fbar_update(logfbar, nextsi, lambda, gamma, N, c);
+    return R_NilValue;
+END_RCPP
+}
+// boarding_bif_create_fast
+NumericMatrix boarding_bif_create_fast(const IntegerVector& y, const IntegerMatrix& nextsi, const NumericMatrix& logfbar, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_create_fast(SEXP ySEXP, SEXP nextsiSEXP, SEXP logfbarSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nextsi(nextsiSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_fast(y, nextsi, logfbar, lambda, gamma, rho, N, c));
+    return rcpp_result_gen;
+END_RCPP
+}
+// boarding_bif_update_fast
+void boarding_bif_update_fast(NumericMatrix logpolicy, const IntegerVector& y, const NumericMatrix& logfbar, const IntegerMatrix& nextsi, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_update_fast(SEXP logpolicySEXP, SEXP ySEXP, SEXP logfbarSEXP, SEXP nextsiSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type logpolicy(logpolicySEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type nextsi(nextsiSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
+    boarding_bif_update_fast(logpolicy, y, logfbar, nextsi, lambda, gamma, rho, N, c);
+    return R_NilValue;
+END_RCPP
+}
+// boarding_logf_update_sparse
+void boarding_logf_update_sparse(NumericMatrix logf, NumericMatrix alphas2i, NumericMatrix alphai2i, const IntegerMatrix& xts, const NumericVector& lambda, const NumericVector& gamma, const IntegerMatrix& neighbors, const int& N);
+RcppExport SEXP _agents_boarding_logf_update_sparse(SEXP logfSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP xtsSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP neighborsSEXP, SEXP NSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type logf(logfSEXP);
@@ -77,7 +142,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericVector& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix& >::type neighbors(neighborsSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
-    boarding_logf_update(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N);
+    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N);
     return R_NilValue;
 END_RCPP
 }
@@ -535,9 +600,13 @@ RcppExport SEXP _rcpp_module_boot_condbernmcmc_module();
 static const R_CallMethodDef CallEntries[] = {
     {"_agents_boarding_all_lowdim_states", (DL_FUNC) &_agents_boarding_all_lowdim_states, 1},
     {"_agents_boarding_lowdim2index", (DL_FUNC) &_agents_boarding_lowdim2index, 3},
-    {"_agents_boarding_bif_create_cpp", (DL_FUNC) &_agents_boarding_bif_create_cpp, 7},
+    {"_agents_boarding_bif_create", (DL_FUNC) &_agents_boarding_bif_create, 7},
     {"_agents_boarding_bif_update", (DL_FUNC) &_agents_boarding_bif_update, 8},
-    {"_agents_boarding_logf_update", (DL_FUNC) &_agents_boarding_logf_update, 8},
+    {"_agents_boarding_fbar_create", (DL_FUNC) &_agents_boarding_fbar_create, 4},
+    {"_agents_boarding_fbar_update", (DL_FUNC) &_agents_boarding_fbar_update, 6},
+    {"_agents_boarding_bif_create_fast", (DL_FUNC) &_agents_boarding_bif_create_fast, 8},
+    {"_agents_boarding_bif_update_fast", (DL_FUNC) &_agents_boarding_bif_update_fast, 9},
+    {"_agents_boarding_logf_update_sparse", (DL_FUNC) &_agents_boarding_logf_update_sparse, 8},
     {"_agents_boarding_sample_x_given_si_sparse", (DL_FUNC) &_agents_boarding_sample_x_given_si_sparse, 9},
     {"_agents_logdpoisbinom_cpp", (DL_FUNC) &_agents_logdpoisbinom_cpp, 1},
     {"_agents_logdbern_sum_cpp", (DL_FUNC) &_agents_logdbern_sum_cpp, 2},

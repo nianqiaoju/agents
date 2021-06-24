@@ -42,21 +42,18 @@ int boarding_lowdim2index(const int N, const int scnt, const int icnt){
   return int (N - scnt) * (N - scnt + 1) / 2  + N - scnt - icnt; 
   }
 
-
-
-
 /*
- this function is equivalent to running create_fbar_matrix and sir_bif_create_cpp
+ * this function is equivalent to fbar_create + bif_create_fast
+ * 
  */
-
 // [[Rcpp::export]]
-NumericMatrix boarding_bif_create_cpp(const IntegerVector & y,
-                                      const IntegerMatrix & all_lowdim_states,
-                                      const double & lambda, 
-                                      const double & gamma, 
-                                      const double & rho,
-                                      const int & N,
-                                      const double & c){
+NumericMatrix boarding_bif_create(const IntegerVector & y,
+                                  const IntegerMatrix & all_lowdim_states,
+                                  const double & lambda, 
+                                  const double & gamma, 
+                                  const double & rho,
+                                  const int & N,
+                                  const double & c){
   int days = y.size();
   // Rcout << "observation length = " <<  days <<"\n";
   
@@ -152,6 +149,207 @@ void boarding_bif_update(NumericMatrix logpolicy,
   }
 }
 
+/*
+ * given a factor of c, 
+ * for each lowdimensional state(st,it),
+ * gives a list of states (s(t+1),i(t+1))
+ * and compute the transition density from t to t+1
+ */
+// [[Rcpp::export]]
+List boarding_fbar_create(const double lambda, 
+                          const double gamma,
+                          const int N,
+                          const double c){
+  // for every eligible state (st,it), compute the vector storing transition kernel
+  // log f(s(t+1), i(t+1) | st,it)
+  int ncurrstates = (N+1) * (N+2) / 2;
+  int nnextstates = c * c * N + 4 + 4 * c * sqrt(N) + 1 + 1; // this is a crude upper bound
+  nnextstates = min(nnextstates , ncurrstates); 
+  NumericMatrix logfbar(ncurrstates, nnextstates);
+  IntegerMatrix nextsi(ncurrstates, nnextstates);
+  std::fill(nextsi.begin(), nextsi.end(), -1);
+  std::fill(logfbar.begin(), logfbar.end(), 1.0);
+  
+  int snow, inow, snext, inext;
+  int supper, slower, iupper, ilower;
+  int istatenow;
+  int cntstatenext;
+  istatenow = 0;
+      
+  for(int snow = N; snow >= 0; snow--){
+    for(int inow = N - snow; inow >= 0; inow--){ // istatenow  = boarding_lowdim2index(N,snow,inow);
+      // snow and inow defines a current state
+      cntstatenext = 0;
+      slower = snow * (1 - inow * lambda / N) - c * sqrt(N) / 2;
+      supper = snow * (1 - inow * lambda / N) + c * sqrt(N) / 2 + 0.5;
+      slower = max(0, slower);
+      supper = min(snow, supper);
+      for(int snext = supper; snext >= slower; snext--){
+        ilower = inow + snow - snext - inow * gamma - c * sqrt(N) / 2;
+        iupper = inow + snow - snext - inow * gamma + c * sqrt(N) / 2 + 0.5;
+        ilower = max(snow - snext, ilower);
+        iupper = min(inow + snow - snext, iupper);
+        for(int inext = iupper; inext >= ilower; inext--){
+          // snext and inext defines a future state
+          logfbar(istatenow, cntstatenext) = sir_logfbar(snow, inow, snext, inext, lambda, gamma, N);
+          nextsi(istatenow, cntstatenext) = boarding_lowdim2index(N, snext, inext);
+          cntstatenext++;
+        }
+      }
+      istatenow++;
+    }
+  }
+  
+  return List::create(Named("nextsi") = nextsi,
+                      Named("logfbar") = logfbar);
+  }
+
+/*
+ * if logfbar and nextsi already exsit for factor c,
+ * update them given new values of lambda and gamma
+ */
+
+// [[Rcpp::export]]
+void boarding_fbar_update(NumericMatrix logfbar,
+                          IntegerMatrix nextsi,
+                          const double lambda,
+                          const double gamma,
+                          const double N,
+                          const double c){
+  std::fill(nextsi.begin(), nextsi.end(), -1);
+  std::fill(logfbar.begin(), logfbar.end(), 1.0);
+  
+  int snow, inow, snext, inext;
+  int supper, slower, iupper, ilower;
+  int istatenow;
+  int cntstatenext;
+  istatenow = 0;
+  
+  for(int snow = N; snow >= 0; snow--){
+    for(int inow = N - snow; inow >= 0; inow--){ // istatenow  = boarding_lowdim2index(N,snow,inow);
+      // snow and inow defines a current state
+      cntstatenext = 0;
+      slower = snow * (1 - inow * lambda / N) - c * sqrt(N) / 2;
+      supper = snow * (1 - inow * lambda / N) + c * sqrt(N) / 2 + 0.5;
+      slower = max(0, slower);
+      supper = min(snow, supper);
+      for(int snext = supper; snext >= slower; snext--){
+        ilower = inow + snow - snext - inow * gamma - c * sqrt(N) / 2;
+        iupper = inow + snow - snext - inow * gamma + c * sqrt(N) / 2 + 0.5;
+        ilower = max(snow - snext, ilower);
+        iupper = min(inow + snow - snext, iupper);
+        for(int inext = iupper; inext >= ilower; inext--){
+          // snext and inext defines a future state
+          logfbar(istatenow, cntstatenext) = sir_logfbar(snow, inow, snext, inext, lambda, gamma, N);
+          nextsi(istatenow, cntstatenext) = boarding_lowdim2index(N, snext, inext);
+          cntstatenext++;
+        }
+      }
+      istatenow++;
+    }
+  }
+}
+
+/* 
+ * given the result of pre-computed logfbar matrix, 
+ * create the logpolicy matrix using approximate BIF
+ */
+
+// [[Rcpp::export]]
+NumericMatrix boarding_bif_create_fast(const IntegerVector & y,
+                                       const IntegerMatrix & nextsi,
+                                       const NumericMatrix & logfbar,
+                                       const double & lambda, 
+                                       const double & gamma, 
+                                       const double & rho,
+                                       const int & N,
+                                       const double & c){
+  int days = y.size();
+  // Rcout << "observation length = " <<  days <<"\n";
+  int nlowdim_states = (N + 2) * (N + 1) / 2;
+  // initialize the policy vector to -Inf
+  NumericMatrix logpolicy(nlowdim_states,  days);
+  std::fill(logpolicy.begin(), logpolicy.end(), R_NegInf);
+  
+  // start the recursion from t = days - 1. 
+  int t = days - 1;
+  int ilowdim = 0;
+  for(int snow = N; snow >= 0; snow--){
+    for(int inow = N - snow; inow >= 0; inow--){ // istatenow  = boarding_lowdim2index(N,snow,inow);
+      logpolicy(ilowdim, t) =  R::dbinom(y[t], inow, rho, true);
+      ilowdim++;
+    }
+  }
+  
+  int snow, inow;
+  double currlsum, ladd, currlmax;
+  int icolnext;
+  int ilowdimnow = 0;
+  
+  // run the recursion backwards
+  for(int t = days - 2; t >= 0 ; t--){
+    ilowdimnow = 0;
+    for(int snow = N; snow >= 0; snow--){
+      for(int inow = N - snow; inow >= 0; inow--){ // istatenow  = boarding_lowdim2index(N,snow,inow);
+        currlsum = R_NegInf;
+        icolnext = 0;
+        while(icolnext < logfbar.ncol() && nextsi(ilowdimnow, icolnext) >= 0){
+          ladd = logfbar(ilowdimnow, icolnext) + logpolicy(nextsi(ilowdimnow, icolnext), t+1);
+          if(!Rcpp::traits::is_infinite<REALSXP>(ladd)){
+            currlmax = max(currlsum, ladd);
+            currlsum = log(exp(currlsum - currlmax) + exp(ladd - currlmax)) + currlmax;
+          }
+          icolnext++;
+        }
+        logpolicy(ilowdimnow, t) = currlsum +  R::dbinom(y[t], inow, rho, true);
+        ilowdimnow++;
+      }
+    }
+  }
+  return logpolicy;
+}
+
+
+/* given updated logfbar matrix,
+ * update the logpolicy using approximate BIF
+ */
+// [[Rcpp::export]]
+void boarding_bif_update_fast(NumericMatrix logpolicy,
+                              const IntegerVector & y,
+                              const NumericMatrix & logfbar,
+                              const IntegerMatrix & nextsi,
+                              const double & lambda, 
+                              const double & gamma, 
+                              const double & rho,
+                              const int & N,
+                              const double & c){
+  int days = y.size();
+  
+  int snow, inow;
+  double currlsum, ladd, currlmax;
+  int icolnext;
+  int ilowdimnow = 0;
+  for(int t = days - 2; t >= 0 ; t--){
+    ilowdimnow = 0;
+    for(int snow = N; snow >= 0; snow--){
+      for(int inow = N - snow; inow >= 0; inow--){ // istatenow  = boarding_lowdim2index(N,snow,inow);
+        currlsum = R_NegInf;
+        icolnext = 0;
+        while(icolnext < logfbar.ncol() && nextsi(ilowdimnow, icolnext) >= 0){
+          ladd = logfbar(ilowdimnow, icolnext) + logpolicy(nextsi(ilowdimnow, icolnext), t+1);
+          if(!Rcpp::traits::is_infinite<REALSXP>(ladd)){
+            currlmax = max(currlsum, ladd);
+            currlsum = log(exp(currlsum - currlmax) + exp(ladd - currlmax)) + currlmax;
+          }
+          icolnext++;
+        }
+        logpolicy(ilowdimnow, t) = currlsum +  R::dbinom(y[t], inow, rho, true);
+        ilowdimnow++;
+      }
+    }
+  }
+}
+
 
 /*
  * given all particles (xts), update the following items:
@@ -223,14 +421,14 @@ void boarding_logf_update_sparse(NumericMatrix logf,
 
 // [[Rcpp::export]]
 void boarding_sample_x_given_si_sparse(IntegerMatrix & xts,
-                                                const NumericMatrix & alphas2i,
-                                                const NumericMatrix & alphai2i,
-                                                const NumericVector & lambda,
-                                                const NumericVector & gamma,
-                                                const IntegerVector & snext,
-                                                const IntegerVector & inext,
-                                                const int & N,
-                                                const int & P){
+                                       const NumericMatrix & alphas2i,
+                                       const NumericMatrix & alphai2i,
+                                       const NumericVector & lambda,
+                                       const NumericVector & gamma,
+                                       const IntegerVector & snext,
+                                       const IntegerVector & inext,
+                                       const int & N,
+                                       const int & P){
   int snow, inow;
   int s2i, i2i;
   LogicalVector xxsi(N);
