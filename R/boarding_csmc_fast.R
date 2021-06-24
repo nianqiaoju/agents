@@ -1,5 +1,5 @@
 #' @title controlled SMC sampler for the boarding school dataset.
-#' @description marginal likelihood estimations.
+#' @description marginal likelihood estimations. WARNING: current implementation assumes fully connected network.
 #' @param y , observations, length (T+1)
 #' @param model_config a list containing model parameters, must pass the test of check_model_config;
 #' @param logpolicy a 3-d array storing the bif information filter
@@ -17,37 +17,41 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   ## logW: log of normalized logw
   logweights <- logw  <- logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
   ## storage and samples
-  it <- st <- rep(NA, num_particles);
+  stitindex <- it <- st <- integer(num_particles);
   xts <- matrix(NA, ncol = num_particles, nrow = model_config$N);
-  logf <- matrix(0, nrow = model_config$N + 1, ncol = model_config$N + 1); ##stores the kernel f(snext,inext given xnow), updated for each time and each particle
-  fpsi <- array(NA, dim = c(N + 1, N + 1, num_particles)); ## this is the product of f * psi 
+  alphas2i <- alphai2i <-  matrix(0, nrow = model_config$N, ncol = num_particles);
+  logf <- fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
+  ## logf stores the kernel f(snext,inext given xnow)
+  ## fpsi this is the product of f * psi 
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
   t <- 0; ## treat t = 0 differently, because r0 = 0 by alpha0
-  ## mu0(s0,s0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
+  ## mu0(s0,i0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
   ## the normalising constant is logz0
-  current_infection_support <- 0 : model_config$N;
-  logposterior <- logdpoisbinom(model_config$alpha0);
-  logposterior <- logposterior + sapply(current_infection_support, function(icount) logpolicy[model_config$N - icount + 1, icount + 1, t + 1]);
+  logmu <- logdpoisbinom(model_config$alpha0);
+  logposterior <- apply(lowdimstates, 1, function(si) (si[2] + si[1] == model_config$N) * logmu[1 + si[2]]);
+  logposterior <- logposterior + logpolicy[, t + 1];
   maxlogposterior <- max(logposterior);
   logposterior <- logposterior - maxlogposterior;
   logz0 <- log(sum(exp(logposterior))) + maxlogposterior; ## this is mu0(policy0)
   lognormalisingconstant[t + 1] <- logz0;
   normalizedposterior <- exp(logposterior) / sum(exp(logposterior)); ## use this to sample it at t = 0 
+  stitindex <- sample.int(dim(lowdimstates)[1], size = num_particles, replace = TRUE, prob = normalizedposterior);
+  it <- lowdimstates[stitindex, 2];
+  st <- lowdimstates[stitindex, 1];
   for (p in 1:num_particles){## can vectorize this later 
-    it[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = normalizedposterior)
-    st[p] <- model_config$N - it[p];
-    xts[,p] <- rcondbern(sum_x = it[p], alpha = model_config$alpha0, exact = TRUE)
+    xts[,p] <- as.integer(rcondbern(sum_x = it[p], alpha = model_config$alpha0, exact = TRUE));
   }
   for (t in 1 : (num_observations - 1)){
     ## expectation of psi[t+1] given x[t]
+    ## update alphas2i, alphai2i, and logf
+    boarding_logf_update(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$neighbors, model_config$N);
     for (p in 1 : num_particles){
-      sir_csmc_update_f_matrix(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N); ## changes the matrix logf, which stores the kernel f(snext,inext given xnow),
-      fpsi[ , , p] <- logf + logpolicy[ ,  , t + 1];
-      logcondexp[p] <- lw.logsum(fpsi[ , , p]);
+      fpsi[ , p] <- logf[,p] + logpolicy[ ,  t + 1];
+      logcondexp[p] <- lw.logsum(fpsi[ , p]);
     }
     ## unnormalized weight = p(yt | xt) * expecation(policy[t+1] |xt) / policy[t](xt)
     for (p in 1 : num_particles){
-      logweights[p] <- logcondexp[p] + dbinom(x = y[t], size = model_config$N - it[p] - st[p], prob = model_config$rho, log = TRUE) - logpolicy[st[p] + 1, it[p] + 1 , t];
+      logweights[p] <- logcondexp[p] + dbinom(x = y[t + 1], size = it[p], prob = model_config$rho, log = TRUE) - logpolicy[stitindex[p], t];
     }
     ## normalise the weights
     maxlogweights <- max(logweights);
@@ -55,34 +59,35 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
       return(-Inf);
     }
     logweights <- logweights - maxlogweights;
+    normalizedweights <- exp(logweights) / sum(exp(logweights));
     lognormalisingconstant[t + 1] <- log(sum(exp(logweights))) + maxlogweights - log(num_particles);
     ## logw, logW and ess are cumulative
     logw <- logW + logweights;
     weights <- lw.normalize(logw);
     ess <- 1 / sum(weights ** 2) / num_particles;
+    cat("t = ", t, "with ess = ", ess, "\n");
     if(ess < ess_threshold | any(is.infinite(logweights))){## adaptive resampling
+      cat(which(weights == 0), "\n");
       ancester <- sample.int(n = num_particles, prob = weights, replace = TRUE); ## resample
+      cat(ancester, "\n");
       logw <- logW <- rep(0, num_particles); ## update logw and logW
       ## re-indexing
       xts <- xts[ , ancester];
-      it <- it[ ancester ];
-      st <- st[ ancester ]; 
-      fpsi <- fpsi[ , , ancester];
+      alphas2i <- alphas2i[, ancester];
+      alphai2i <- alphai2i[, ancester];
+      fpsi <- fpsi[, ancester];
       rm(ancester);
     }else{
       logW <- log(weights); ## this is cumulative. it is equivalent to logW <- normalized(logw)
     }
     ## sample xnext according to the twisted kernel 
     for (p in 1 : num_particles){
-      ## sample it and st from current_infection_suport = 0,1,...,N
-      it_logweights <- apply(fpsi[ , , p], 2 , lw.logsum) ## the column indices correspond to icount
-      it[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = lw.normalize(it_logweights));
-      st_weights <- lw.normalize(fpsi[, it[p] + 1, p]);
-      st[p] <- sample(x = current_infection_support, size = 1, replace = FALSE, prob = st_weights); 
+      stitindex[p] <- sample.int(dim(lowdimstates)[1], size = 1, replace = FALSE, prob = lw.normalize(fpsi[,p]));
+      it[p] <- lowdimstates[stitindex[p], 2];
+      st[p] <- lowdimstates[stitindex[p], 1];
     } 
-    ## sammple xt given st and it (for fully connected networks)
-    xts <- sir_sample_x_given_si(xts, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
+    ## sammple xt given st and it
+    boarding_sample_x_given_si_sparse(xts, alphas2i, alphai2i, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
   }
   return(sum(lognormalisingconstant));
-  
 }

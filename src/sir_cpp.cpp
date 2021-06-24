@@ -34,7 +34,7 @@ int sir_get_state_index(const int s, const int i, const int N){
  */
 
 // [[Rcpp::export]]
-NumericVector sir_bif_create_cpp(const IntegerVector & y, 
+NumericVector sir_bif_create(const IntegerVector & y, 
                                  const IntegerMatrix & nexts,
                                  const IntegerMatrix & nexti,
                                  const NumericMatrix & logfbar,
@@ -100,7 +100,7 @@ NumericVector sir_bif_create_cpp(const IntegerVector & y,
  */
 
 // [[Rcpp::export]]
-void sir_bif_update_cpp(NumericVector & logpolicy, 
+void sir_bif_update(NumericVector & logpolicy, 
                         IntegerMatrix & nexts,
                         IntegerMatrix & nexti, 
                         NumericMatrix & logfbar, 
@@ -110,7 +110,7 @@ void sir_bif_update_cpp(NumericVector & logpolicy,
                         const IntegerVector & y, 
                         const int & N,
                         const double & c){
-  update_fbar_matrix(nexts, nexti, logfbar, lambda, gamma, N, c);
+  sir_fbar_update(nexts, nexti, logfbar, lambda, gamma, N, c);
   std::fill(logpolicy.begin(), logpolicy.end(), R_NegInf);
   // deal with the terminal time first
   int days = y.size();
@@ -163,7 +163,7 @@ void sir_bif_update_cpp(NumericVector & logpolicy,
  * the factor c controls size of the subset
  */
 // [[Rcpp::export]]
-List create_fbar_matrix(const double lambda, 
+List sir_fbar_create(const double lambda, 
                         const double gamma,
                         const int N,
                         const double c){
@@ -227,7 +227,7 @@ List create_fbar_matrix(const double lambda,
  */
 
 // [[Rcpp::export]]
-void update_fbar_matrix(IntegerMatrix & nexts,
+void sir_fbar_update(IntegerMatrix & nexts,
                         IntegerMatrix & nexti, 
                         NumericMatrix & logfbar, 
                         const double & lambda,
@@ -278,11 +278,11 @@ void update_fbar_matrix(IntegerMatrix & nexts,
  * compute the transition probability from x[t-1] to the aggregated state (st, it)
  * log f(st, it | x[t-1], theta)
  * it directly modifies the logf matrix
- * the current implementation assumes that the network is fully connected
+ * WARNING: the current implementation assumes that the network is fully connected
  */
 
 // [[Rcpp::export]]
-void sir_csmc_update_f_matrix(NumericMatrix & logf,
+void sir_logf_update(NumericMatrix & logf,
                          const IntegerVector & xxprev,
                          const NumericVector & lambda_v,
                          const NumericVector & gamma_v,
@@ -294,8 +294,8 @@ void sir_csmc_update_f_matrix(NumericMatrix & logf,
   int inew, snew;
   NumericVector alphai2i(N);
   NumericVector alphas2i(N);
-  NumericVector di2i(N);
-  NumericVector ds2i(N);
+  NumericVector di2i(N + 1);
+  NumericVector ds2i(N + 1);
   
   icount = sum(xxprev == 1);
   scount = sum(xxprev == 0);
@@ -328,7 +328,8 @@ void sir_csmc_update_f_matrix(NumericMatrix & logf,
 /* For the sir model,
  * sample from the kernel f( * | xt) subject to 
  * the constraint that S(x[t+1]) = s and I(x[t+1]) = i
- * It modifies the matrixc xx directly, which is N by P
+ * It modifies the matrix xx directly, which is N by P
+ * WARNING: this implementation assumes fully connected network.
  */ 
 
 // [[Rcpp::export]]
@@ -339,8 +340,8 @@ IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
                            const IntegerVector & icount,
                            const int & N,
                            const int & P){
-  NumericVector alphasi(N);
-  NumericVector alphaii(N);
+  NumericVector alphas2i(N);
+  NumericVector alphai2i(N);
   LogicalVector xxsi(N);
   LogicalVector xxii(N);
   LogicalVector xxi(N);
@@ -349,30 +350,30 @@ IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
   NumericVector rand(N);
   
   for(int p = 0; p < P; p++){// for every particle
-    std::fill(alphasi.begin(), alphasi.end(), 0);
-    std::fill(alphaii.begin(), alphaii.end(), 0);
+    std::fill(alphas2i.begin(), alphas2i.end(), 0);
+    std::fill(alphai2i.begin(), alphai2i.end(), 0);
     snow = sum(xx(_,p) == 0);
     inow = sum(xx(_,p) == 1);
     rnow = N - snow - inow;
-    rcount = N - scount[p] - icount[p];
+    // rcount = N - scount[p] - icount[p];
     s2i = snow - scount[p];
     i2i = icount[p] - s2i;
     // update alphasi and alphaii
     for(int n = 0; n < N; n++){
       if(xx(n,p) == 0){
-        alphasi[n] = lambda[n] * inow / N;
+        alphas2i[n] = lambda[n] * inow / N;
       }else if (xx(n,p) == 1){
-        alphaii[n] = 1 - gamma[n];
+        alphai2i[n] = 1 - gamma[n];
       }
     }
     GetRNGstate();
     rand = runif(N);
     PutRNGstate();
-    xxsi = idchecking_cpp(s2i, alphasi, rand);
+    xxsi = idchecking_cpp(s2i, alphas2i, rand);
     GetRNGstate();
     rand = runif(N);
     PutRNGstate();
-    xxii = idchecking_cpp(i2i, alphaii, rand);
+    xxii = idchecking_cpp(i2i, alphai2i, rand);
     xxi = mapply(xxsi, xxii, xory);
     // compare xxi and xx(_,p), and change the values in xx(_,p)
     for(int n = 0; n < N; n++){
@@ -387,4 +388,40 @@ IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
   return xx;
 };
 
+/*
+ * Given agent states xt, update transition probabilities alphasi and alphaii
+ * for each particle. 
+ * This function modifies alphas2i and alphai2i directly.
+ * 
+ * The n-th row is a vector of the form (3,1,2,0,10,-1,-1,-1,-1). Here the indices are zero based.
+ */
+// [[Rcpp::export]]
+void sir_alpha_update_sparse(NumericMatrix alphas2i, 
+                                  NumericMatrix alphai2i, 
+                                  const IntegerMatrix & xts,
+                                  const NumericVector & lambda,
+                                  const NumericVector  & gamma, 
+                                  const IntegerMatrix  & neighbors,
+                                  const int & N){
+  // assume that logf is a (N+1) by (N+1) matrix
+  // xxprev is a vector of length N, representing agent states
+  std::fill(alphas2i.begin(), alphas2i.end(), 0);
+  std::fill(alphai2i.begin(), alphai2i.end(), 0);
+  int ineighbors, mindex;
+  for (int p = 0; p < xts.ncol(); p++){
+    for(int n = 0; n < xts.nrow(); n++){
+      if(xts(n,p) ==0){
+        ineighbors = mindex = 0;
+        while(mindex < neighbors.ncol() & neighbors(n,mindex) >= 0){
+          ineighbors += ((xts(neighbors(n,mindex),p) == 1)? 1 : 0);
+          mindex++;
+        }
+        // mindex is the number of neighbors of agent n 
+        alphas2i(n,p) = lambda[n] * ineighbors / mindex;
+      }else if(xts(n,p) == 1){
+        alphai2i(n,p) = 1 - gamma[n];
+      }
+    }
+  }
+}
 

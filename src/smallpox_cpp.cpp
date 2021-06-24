@@ -91,7 +91,7 @@ void smallpox_bif_update_cpp(NumericVector & logpolicy,
                              const IntegerVector & y, 
                              const int & N,
                              const double & c){
-  update_fbar_matrix(nexts, nexti, logfbar, lambda, gamma, N, c);
+  sir_fbar_update(nexts, nexti, logfbar, lambda, gamma, N, c);
   std::fill(logpolicy.begin(), logpolicy.end(), R_NegInf);
   // start at the terminal time first
   int days = y.size();

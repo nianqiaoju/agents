@@ -5,13 +5,9 @@
 check_model_config <- function(model_config){
   if(is.null(model_config$N)) stop("please specify population size");
   if(is.null(model_config$network_type)) stop("please specify network type. it can be full or general");
-  match.arg(model_config$network_type, choices = c("full", "general"));
-  if(model_config$network_type == "general"){
-    if(is.null(model_config$adjacency_matrix_b)) stop("please specify the normalized adjacency matrix");
-    if(any(colSums(model_config$adjacency_matrix_b) != 1)){
-      warning("the adjacency matrix is not normalized");
-      # adjacency_matrix_b <- apply(adjacency_matrix_b, 2, function(col) col / sum(col));
-    } 
+  match.arg(model_config$network_type, choices = c("full", "sparse"));
+  if(model_config$network_type == "sparse"){
+    if(is.null(model_config$neighbors)) stop("please give N(n)");
   }
   # if(is.null(model_config$features)) stop("please specify agent features");
   # if(dim(model_config$features)[1] != model_config$N) stop("feature matrix is not the right size");

@@ -41,7 +41,7 @@ smallpox_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   for (t in 1 : (num_observations - 1)){
     ## expectation of psi[t+1] given x[t]
     for (p in 1 : num_particles){
-      sir_csmc_update_f_matrix(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N); ## changes the matrix logf, which stores the kernel f(snext,inext given xnow),
+      sir_logf_update(logf, xts[,p], model_config$lambda, model_config$gamma, model_config$N); ## changes the matrix logf, which stores the kernel f(snext,inext given xnow),
       fpsi[ , , p] <- logf + logpolicy[ ,  , t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , , p]);
     }

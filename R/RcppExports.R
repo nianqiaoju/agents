@@ -13,6 +13,18 @@ boarding_bif_create_cpp <- function(y, all_lowdim_states, lambda, gamma, rho, N,
     .Call('_agents_boarding_bif_create_cpp', PACKAGE = 'agents', y, all_lowdim_states, lambda, gamma, rho, N, c)
 }
 
+boarding_bif_update <- function(logpolicy, y, all_lowdim_states, lambda, gamma, rho, N, c) {
+    invisible(.Call('_agents_boarding_bif_update', PACKAGE = 'agents', logpolicy, y, all_lowdim_states, lambda, gamma, rho, N, c))
+}
+
+boarding_logf_update <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
+    invisible(.Call('_agents_boarding_logf_update', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
+}
+
+boarding_sample_x_given_si_sparse <- function(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P) {
+    invisible(.Call('_agents_boarding_sample_x_given_si_sparse', PACKAGE = 'agents', xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P))
+}
+
 logdpoisbinom_cpp <- function(alpha) {
     .Call('_agents_logdpoisbinom_cpp', PACKAGE = 'agents', alpha)
 }
@@ -79,36 +91,32 @@ sir_logfbar <- function(snow, inow, snext, inext, lambda, gamma, N) {
     .Call('_agents_sir_logfbar', PACKAGE = 'agents', snow, inow, snext, inext, lambda, gamma, N)
 }
 
-sir_bif_create_cpp <- function(y, nexts, nexti, logfbar, rho, N) {
-    .Call('_agents_sir_bif_create_cpp', PACKAGE = 'agents', y, nexts, nexti, logfbar, rho, N)
+sir_bif_create <- function(y, nexts, nexti, logfbar, rho, N) {
+    .Call('_agents_sir_bif_create', PACKAGE = 'agents', y, nexts, nexti, logfbar, rho, N)
 }
 
-sir_bif_update_cpp <- function(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c) {
-    invisible(.Call('_agents_sir_bif_update_cpp', PACKAGE = 'agents', logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c))
+sir_bif_update <- function(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c) {
+    invisible(.Call('_agents_sir_bif_update', PACKAGE = 'agents', logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c))
 }
 
-create_fbar_matrix <- function(lambda, gamma, N, c) {
-    .Call('_agents_create_fbar_matrix', PACKAGE = 'agents', lambda, gamma, N, c)
+sir_fbar_create <- function(lambda, gamma, N, c) {
+    .Call('_agents_sir_fbar_create', PACKAGE = 'agents', lambda, gamma, N, c)
 }
 
-update_fbar_matrix <- function(nexts, nexti, logfbar, lambda, gamma, N, c) {
-    invisible(.Call('_agents_update_fbar_matrix', PACKAGE = 'agents', nexts, nexti, logfbar, lambda, gamma, N, c))
+sir_fbar_update <- function(nexts, nexti, logfbar, lambda, gamma, N, c) {
+    invisible(.Call('_agents_sir_fbar_update', PACKAGE = 'agents', nexts, nexti, logfbar, lambda, gamma, N, c))
 }
 
-sir_csmc_update_f_matrix <- function(logf, xxprev, lambda_v, gamma_v, N) {
-    invisible(.Call('_agents_sir_csmc_update_f_matrix', PACKAGE = 'agents', logf, xxprev, lambda_v, gamma_v, N))
-}
-
-smallpox_bif_create_cpp <- function(y, nexts, nexti, logfbar, rho, N) {
-    .Call('_agents_smallpox_bif_create_cpp', PACKAGE = 'agents', y, nexts, nexti, logfbar, rho, N)
-}
-
-smallpox_bif_update_cpp <- function(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c) {
-    invisible(.Call('_agents_smallpox_bif_update_cpp', PACKAGE = 'agents', logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c))
+sir_logf_update <- function(logf, xxprev, lambda_v, gamma_v, N) {
+    invisible(.Call('_agents_sir_logf_update', PACKAGE = 'agents', logf, xxprev, lambda_v, gamma_v, N))
 }
 
 sir_sample_x_given_si <- function(xx, lambda, gamma, scount, icount, N, P) {
     .Call('_agents_sir_sample_x_given_si', PACKAGE = 'agents', xx, lambda, gamma, scount, icount, N, P)
+}
+
+sir_alpha_update_sparse <- function(alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
+    invisible(.Call('_agents_sir_alpha_update_sparse', PACKAGE = 'agents', alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
 }
 
 sis_get_alpha_full_cpp <- function(xx, lambda, gamma) {
@@ -133,6 +141,14 @@ sis_forward_algorithm_cpp <- function(logf0, logdtransition, y, all_sum_x, rho) 
 
 sis_apf_exact_full_cpp <- function(y, alpha0, lambda, gamma, rho, num_particles, threshold, population_size) {
     .Call('_agents_sis_apf_exact_full_cpp', PACKAGE = 'agents', y, alpha0, lambda, gamma, rho, num_particles, threshold, population_size)
+}
+
+smallpox_bif_create_cpp <- function(y, nexts, nexti, logfbar, rho, N) {
+    .Call('_agents_smallpox_bif_create_cpp', PACKAGE = 'agents', y, nexts, nexti, logfbar, rho, N)
+}
+
+smallpox_bif_update_cpp <- function(logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c) {
+    invisible(.Call('_agents_smallpox_bif_update_cpp', PACKAGE = 'agents', logpolicy, nexts, nexti, logfbar, lambda, gamma, rho, y, N, c))
 }
 
 static_xx_gibbs_cpp <- function(xx_previous, alpha, rho, y) {

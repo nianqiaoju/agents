@@ -9,14 +9,14 @@ using namespace std;
 
 // this is a header file for all functions releated to the sir model
 
-NumericVector sir_bif_create_cpp(const IntegerVector & y,
+NumericVector sir_bif_create(const IntegerVector & y,
                           const IntegerMatrix & nexts,
                           const IntegerMatrix & nexti,
                           const NumericMatrix & logfbar,
                           const double & rho,
                           const int & N);
 
-void sir_bif_update_cpp(NumericVector & logpolicy, 
+void sir_bif_update(NumericVector & logpolicy, 
                         IntegerMatrix & nexts,
                         IntegerMatrix & nexti,
                         NumericMatrix & logfbar,
@@ -28,12 +28,12 @@ void sir_bif_update_cpp(NumericVector & logpolicy,
                         const double & c);
 
 
-List create_fbar_matrix(const double lambda, 
+List sir_fbar_create(const double lambda, 
                         const double gamma,
                         const int N,
                         const double c);
 
-void update_fbar_matrix(IntegerMatrix & nexts,
+void sir_fbar_update(IntegerMatrix & nexts,
                         IntegerMatrix & nexti, 
                         NumericMatrix & logfbar, 
                         const double & lambda,
@@ -52,14 +52,24 @@ double sir_logfbar(const int & snow,
                    const double & gamma, 
                    const int & N);
 
-void sir_csmc_update_f_matrix(NumericMatrix & logf,
+void sir_logf_update(NumericMatrix & logf,
                          const IntegerVector & xxprev,
                          const NumericVector & lambda_v,
                          const NumericVector & gamma_v,
                          const int & N);
 
 
-IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xx,
+void sir_alpha_update_sparse(NumericMatrix alphas2i, 
+                             NumericMatrix alphai2i, 
+                             const IntegerMatrix & xts,
+                             const NumericVector & lambda,
+                             const NumericVector  & gamma, 
+                             const IntegerMatrix  & neighbors,
+                             const int & N);
+  
+
+
+IntegerMatrix sir_sample_x_given_si(IntegerMatrix & xts,
                            const NumericVector & lambda,
                            const NumericVector & gamma, 
                            const IntegerVector & scount,

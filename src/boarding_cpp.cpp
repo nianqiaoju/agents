@@ -42,23 +42,11 @@ int boarding_lowdim2index(const int N, const int scnt, const int icnt){
   return int (N - scnt) * (N - scnt + 1) / 2  + N - scnt - icnt; 
   }
 
-/*
- * 
- */
 
-void boarding_bif_update(NumericMatrix logpolicy, 
-                         const IntegerVector & y, 
-                         const IntegerMatrix & all_lowdim_states,
-                         const double & lambda, 
-                         const double & gamma, 
-                         const int & N,
-                         const double &c){
-  }
 
 
 /*
  this function is equivalent to running create_fbar_matrix and sir_bif_create_cpp
- current implementation assumes network_type == "full";
  */
 
 // [[Rcpp::export]]
@@ -69,13 +57,11 @@ NumericMatrix boarding_bif_create_cpp(const IntegerVector & y,
                                       const double & rho,
                                       const int & N,
                                       const double & c){
-  // current implementation assumes network_type == "full"
   int days = y.size();
   // Rcout << "observation length = " <<  days <<"\n";
-  int nlowdim_states = (N + 2) * (N + 1) / 2;
   
   // initialize the policy vector to -Inf
-  NumericMatrix logpolicy(nlowdim_states,  days);
+  NumericMatrix logpolicy(all_lowdim_states.nrow(),  days);
   std::fill(logpolicy.begin(), logpolicy.end(), R_NegInf);
   
   // start the recursion from t = days - 1. 
@@ -117,3 +103,163 @@ NumericMatrix boarding_bif_create_cpp(const IntegerVector & y,
     }
   return logpolicy;
 } 
+
+/*
+ * given a policy matrix, update it given new values of y, lambda, and gamma.
+ * this function assumes that rho, N, and c stays the same.
+ */
+
+// [[Rcpp::export]]
+void boarding_bif_update(NumericMatrix logpolicy, 
+                         const IntegerVector & y, 
+                         const IntegerMatrix & all_lowdim_states,
+                         const double & lambda, 
+                         const double & gamma, 
+                         const double & rho,
+                         const int & N,
+                         const double &c){
+  
+  int snow, inow, snext, inext;
+  int supper, slower, iupper, ilower;
+  double currlsum, ladd, currlmax;
+  // run the recursion backwards
+  for(int t = y.size()- 2; t >= 0 ; t--){
+    for(int ilowdimnow = all_lowdim_states.nrow() - 1; ilowdimnow >= 0; ilowdimnow--){ // for every state
+      snow = all_lowdim_states(ilowdimnow, 0);
+      inow = all_lowdim_states(ilowdimnow, 1);
+      currlsum = R_NegInf;
+      // consider a subset of states that can be reaches from (snow, inow);
+      slower = snow * (1 - inow * lambda / N) - c * sqrt(N) / 2;
+      supper = snow * (1 - inow * lambda / N) + c * sqrt(N) / 2 + 0.5;
+      slower = max(0, slower);
+      supper = min(snow, supper);
+      for(int snext = supper; snext >= slower; snext--){
+        ilower = inow + snow - snext - inow * gamma - c * sqrt(N) / 2;
+        iupper = inow + snow - snext - inow * gamma + c * sqrt(N) / 2 + 0.5;
+        ilower = max(snow - snext, ilower);
+        iupper = min(inow + snow - snext, iupper);
+        for(int inext = iupper; inext >= ilower; inext--){
+          // snext and inext defines a future state
+          ladd = sir_logfbar(snow, inow, snext, inext, lambda, gamma, N) + logpolicy(boarding_lowdim2index(N, snext, inext), t+1);
+          if(!Rcpp::traits::is_infinite<REALSXP>(ladd)){
+            currlmax = max(currlsum, ladd);
+            currlsum = log(exp(currlsum - currlmax) + exp(ladd - currlmax)) + currlmax;
+          }
+        }
+      }
+      logpolicy(ilowdimnow, t) = currlsum +  R::dbinom(y[t], inow, rho, true);
+    }
+  }
+}
+
+
+/*
+ * 
+ */
+
+// [[Rcpp::export]]
+
+void boarding_logf_update(NumericMatrix logf,
+                          NumericMatrix alphas2i,
+                          NumericMatrix alphai2i,
+                          const IntegerMatrix  & xts,
+                          const NumericVector & lambda,
+                          const NumericVector & gamma,
+                          const IntegerMatrix & neighbors,
+                          const int & N){
+  std::fill(alphas2i.begin(), alphas2i.end(), 0);
+  std::fill(alphai2i.begin(), alphai2i.end(), 0);
+  std::fill(logf.begin(), logf.end(), R_NegInf);
+  int ineighbors, mindex;
+  int scnt, icnt;
+  int snew, inew;
+  NumericVector di2i(N + 1);
+  NumericVector ds2i(N + 1);
+  
+  for (int p = 0; p < xts.ncol(); p++){
+    // prepare for next particle
+    scnt = 0;
+    icnt = 0;
+    for(int n = 0; n < xts.nrow(); n++){
+      if(xts(n,p) == 0){
+        mindex = ineighbors = 0;
+        while(mindex < neighbors.ncol() & neighbors(n,mindex) >= 0){
+          ineighbors += ((xts(neighbors(n,mindex),p) == 1)? 1 : 0);
+          mindex++;
+        }
+        // Rprintf("agent %i has %i neighbors\n", n, mindex);
+        // mindex is the number of neighbors of agent n 
+        alphas2i(n,p) = lambda[n] * ineighbors / mindex;
+        scnt++;
+      }else if(xts(n,p) == 1){
+        alphai2i(n,p) = 1 - gamma[n];
+        icnt++;
+      }
+    }
+    // alpha updates finished
+    di2i = logdpoisbinom_cpp(alphai2i(_,p));
+    ds2i = logdpoisbinom_cpp(alphas2i(_,p));
+    // Rprintf("probability of no change is %.2f \n", ds2i[0] + di2i[icnt]);
+    // Rprintf("(s,i) = (%i, %i)\n", scnt, icnt);
+    for(int s2i = 0; s2i <= scnt; s2i++){
+      for(int i2i = 0; i2i <= icnt; i2i++){
+        inew = s2i + i2i;
+        snew = scnt - s2i;
+        logf(boarding_lowdim2index(N, snew, inew), p) = di2i[i2i] + ds2i[s2i];
+      }
+    }
+  }
+}
+
+
+/* 
+ * given the particles xts, and the updates matrices alphas2i and alphai2i, 
+ * sample from the conditional kernel f(x(t+1) | xt, s(t+1), i(t+1)) for each particle
+ */
+
+// [[Rcpp::export]]
+void boarding_sample_x_given_si_sparse(IntegerMatrix & xts,
+                                                const NumericMatrix & alphas2i,
+                                                const NumericMatrix & alphai2i,
+                                                const NumericVector & lambda,
+                                                const NumericVector & gamma,
+                                                const IntegerVector & snext,
+                                                const IntegerVector & inext,
+                                                const int & N,
+                                                const int & P){
+  int snow, inow;
+  int s2i, i2i;
+  LogicalVector xxsi(N);
+  LogicalVector xxii(N);
+  LogicalVector xxi(N);
+  NumericVector rand(N);
+  
+  
+  for(int p = 0; p < P; p++){
+    snow = sum(xts(_,p) == 0);
+    inow = sum(xts(_,p) == 1);
+    s2i = snow - snext[p];
+    i2i = inext[p] - s2i;
+    
+    GetRNGstate();
+    rand = runif(N);
+    PutRNGstate();
+    xxsi = idchecking_cpp(s2i, alphas2i(_,p), rand);
+    GetRNGstate();
+    rand = runif(N);
+    PutRNGstate();
+    
+    xxii = idchecking_cpp(i2i, alphai2i(_,p), rand);
+    xxi = mapply(xxsi, xxii, xory);
+    
+    for(int n = 0; n < N; n++){
+      if(xxi[n]){
+        xts(n,p) = 1;
+      }else{//xxi[n] == 0
+        // 0 -> 0; 1 -> 2; 2 -> 2;
+        xts(n,p) = (xts(n,p) == 0)? 0 : 2;
+      }
+    }
+  }
+  // return xts;
+}
