@@ -28,14 +28,14 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
   ## mu0(s0,i0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
   ## the normalising constant is logz0
   logmu <- logdpoisbinom(model_config$alpha0);
-  x0 <- function(si){
+  lpost_x0 <- function(si){
     if(si[2] + si[1] == model_config$N){
       return(logmu[1+si[2]])
     }else{
       return(-Inf)
     }
   }
-  logposterior <- apply(lowdimstates, 1, function(si) x0(si));
+  logposterior <- apply(lowdimstates, 1, function(si) lpost_x0(si));
   logposterior <- logposterior + logpolicy[, t + 1];
   maxlogposterior <- max(logposterior);
   logposterior <- logposterior - maxlogposterior;
@@ -72,11 +72,11 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
     logw <- logW + logweights;
     weights <- lw.normalize(logw);
     ess <- 1 / sum(weights ** 2) / num_particles;
-    cat("t = ", t, "with ess = ", ess, "\n");
+    # cat("t = ", t, "with ess = ", ess, "\n");
     if(ess < ess_threshold | any(is.infinite(logweights))){## adaptive resampling
-      cat(which(weights == 0), "\n");
+      # cat(which(weights == 0), "\n");
       ancester <- sample.int(n = num_particles, prob = weights, replace = TRUE); ## resample
-      cat(ancester, "\n");
+      # cat(ancester, "\n");
       logw <- logW <- rep(0, num_particles); ## update logw and logW
       ## re-indexing
       xts <- xts[ , ancester];
