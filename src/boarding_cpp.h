@@ -17,6 +17,15 @@ NumericMatrix boarding_bif_create_cpp(const IntegerVector & y,
 
 int boarding_lowdim2index(const int N, const int scnt, const int icnt);
 
+void boarding_logf_update_sparse(NumericMatrix logf,
+                                 NumericMatrix alphas2i,
+                                 NumericMatrix alphai2i,
+                                 const IntegerMatrix  & xts,
+                                 const NumericVector & lambda,
+                                 const NumericVector & gamma,
+                                 const IntegerMatrix & neighbors,
+                                 const int & N);
+
 void boarding_sample_x_given_si_sparse(IntegerMatrix & xx,
                                     const NumericMatrix & alphas2i,
                                     const NumericMatrix & alphai2i, 

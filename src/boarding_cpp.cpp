@@ -154,12 +154,16 @@ void boarding_bif_update(NumericMatrix logpolicy,
 
 
 /*
- * 
+ * given all particles (xts), update the following items:
+ * (1) logf(s(t+1), i(t+1) | xt)
+ * (2) alpha_{s to i}(xt)
+ * (3) alpha_{i to i}(xt)
+ * given the paramters lambda, gamma and the social network in neighbors
  */
 
 // [[Rcpp::export]]
 
-void boarding_logf_update(NumericMatrix logf,
+void boarding_logf_update_sparse(NumericMatrix logf,
                           NumericMatrix alphas2i,
                           NumericMatrix alphai2i,
                           const IntegerMatrix  & xts,
