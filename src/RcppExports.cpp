@@ -94,38 +94,34 @@ BEGIN_RCPP
 END_RCPP
 }
 // boarding_bif_create_fast
-NumericMatrix boarding_bif_create_fast(const IntegerVector& y, const IntegerMatrix& nextsi, const NumericMatrix& logfbar, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
-RcppExport SEXP _agents_boarding_bif_create_fast(SEXP ySEXP, SEXP nextsiSEXP, SEXP logfbarSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+NumericMatrix boarding_bif_create_fast(const IntegerVector& y, const IntegerMatrix& nextsi, const NumericMatrix& logfbar, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_create_fast(SEXP ySEXP, SEXP nextsiSEXP, SEXP logfbarSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix& >::type nextsi(nextsiSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
     Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_fast(y, nextsi, logfbar, lambda, gamma, rho, N, c));
+    rcpp_result_gen = Rcpp::wrap(boarding_bif_create_fast(y, nextsi, logfbar, rho, N, c));
     return rcpp_result_gen;
 END_RCPP
 }
 // boarding_bif_update_fast
-void boarding_bif_update_fast(NumericMatrix logpolicy, const IntegerVector& y, const NumericMatrix& logfbar, const IntegerMatrix& nextsi, const double& lambda, const double& gamma, const double& rho, const int& N, const double& c);
-RcppExport SEXP _agents_boarding_bif_update_fast(SEXP logpolicySEXP, SEXP ySEXP, SEXP logfbarSEXP, SEXP nextsiSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
+void boarding_bif_update_fast(NumericMatrix logpolicy, const IntegerVector& y, const NumericMatrix& logfbar, const IntegerMatrix& nextsi, const double& rho, const int& N, const double& c);
+RcppExport SEXP _agents_boarding_bif_update_fast(SEXP logpolicySEXP, SEXP ySEXP, SEXP logfbarSEXP, SEXP nextsiSEXP, SEXP rhoSEXP, SEXP NSEXP, SEXP cSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type logpolicy(logpolicySEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type logfbar(logfbarSEXP);
     Rcpp::traits::input_parameter< const IntegerMatrix& >::type nextsi(nextsiSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< const double& >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
     Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    boarding_bif_update_fast(logpolicy, y, logfbar, nextsi, lambda, gamma, rho, N, c);
+    boarding_bif_update_fast(logpolicy, y, logfbar, nextsi, rho, N, c);
     return R_NilValue;
 END_RCPP
 }
@@ -604,8 +600,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_boarding_bif_update", (DL_FUNC) &_agents_boarding_bif_update, 8},
     {"_agents_boarding_fbar_create", (DL_FUNC) &_agents_boarding_fbar_create, 4},
     {"_agents_boarding_fbar_update", (DL_FUNC) &_agents_boarding_fbar_update, 6},
-    {"_agents_boarding_bif_create_fast", (DL_FUNC) &_agents_boarding_bif_create_fast, 8},
-    {"_agents_boarding_bif_update_fast", (DL_FUNC) &_agents_boarding_bif_update_fast, 9},
+    {"_agents_boarding_bif_create_fast", (DL_FUNC) &_agents_boarding_bif_create_fast, 6},
+    {"_agents_boarding_bif_update_fast", (DL_FUNC) &_agents_boarding_bif_update_fast, 7},
     {"_agents_boarding_logf_update_sparse", (DL_FUNC) &_agents_boarding_logf_update_sparse, 8},
     {"_agents_boarding_sample_x_given_si_sparse", (DL_FUNC) &_agents_boarding_sample_x_given_si_sparse, 9},
     {"_agents_logdpoisbinom_cpp", (DL_FUNC) &_agents_logdpoisbinom_cpp, 1},

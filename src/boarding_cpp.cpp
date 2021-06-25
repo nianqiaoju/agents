@@ -259,8 +259,6 @@ void boarding_fbar_update(NumericMatrix logfbar,
 NumericMatrix boarding_bif_create_fast(const IntegerVector & y,
                                        const IntegerMatrix & nextsi,
                                        const NumericMatrix & logfbar,
-                                       const double & lambda, 
-                                       const double & gamma, 
                                        const double & rho,
                                        const int & N,
                                        const double & c){
@@ -318,17 +316,15 @@ void boarding_bif_update_fast(NumericMatrix logpolicy,
                               const IntegerVector & y,
                               const NumericMatrix & logfbar,
                               const IntegerMatrix & nextsi,
-                              const double & lambda, 
-                              const double & gamma, 
                               const double & rho,
                               const int & N,
                               const double & c){
   int days = y.size();
-  
   int snow, inow;
   double currlsum, ladd, currlmax;
   int icolnext;
   int ilowdimnow = 0;
+  
   for(int t = days - 2; t >= 0 ; t--){
     ilowdimnow = 0;
     for(int snow = N; snow >= 0; snow--){
