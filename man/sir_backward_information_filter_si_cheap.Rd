@@ -15,5 +15,5 @@ sir_backward_information_filter_si_cheap(y, model_config, c = 2)
 policy approximate dynamic programming matrix pre-calculated to run an smc filter. This is an array of size [N + 1, N + 1, T + 1]
 }
 \description{
-computes the backward information filter as a function of s and i. This function will replace the current sir_backward_information_filter_sumbin once completed.
+computes the backward information filter as a function of s and i.
 }

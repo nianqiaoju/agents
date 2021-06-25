@@ -16,5 +16,5 @@ the matrix containing log densities of \eqn{p(st,it | x[t-1])}.
 }
 \description{
 compute the transition probability from xx[t-1] to the aggregated state (st, it). 
-NOTE: if network is full, then we can use sir_csmc_update_f_matrix instead.
+NOTE: if network is full, then we can use \code{sir_csmc_update_f_matrix} instead.
 }

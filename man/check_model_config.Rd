@@ -10,5 +10,5 @@ check_model_config(model_config)
 \item{model_config}{a list that must contain: TODO}
 }
 \description{
-this functionc checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.
+this function checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.
 }
