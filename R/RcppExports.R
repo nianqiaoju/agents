@@ -9,16 +9,32 @@ boarding_lowdim2index <- function(N, scnt, icnt) {
     .Call('_agents_boarding_lowdim2index', PACKAGE = 'agents', N, scnt, icnt)
 }
 
-boarding_bif_create_cpp <- function(y, all_lowdim_states, lambda, gamma, rho, N, c) {
-    .Call('_agents_boarding_bif_create_cpp', PACKAGE = 'agents', y, all_lowdim_states, lambda, gamma, rho, N, c)
+boarding_bif_create <- function(y, all_lowdim_states, lambda, gamma, rho, N, c) {
+    .Call('_agents_boarding_bif_create', PACKAGE = 'agents', y, all_lowdim_states, lambda, gamma, rho, N, c)
 }
 
 boarding_bif_update <- function(logpolicy, y, all_lowdim_states, lambda, gamma, rho, N, c) {
     invisible(.Call('_agents_boarding_bif_update', PACKAGE = 'agents', logpolicy, y, all_lowdim_states, lambda, gamma, rho, N, c))
 }
 
-boarding_logf_update <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
-    invisible(.Call('_agents_boarding_logf_update', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
+boarding_fbar_create <- function(lambda, gamma, N, c) {
+    .Call('_agents_boarding_fbar_create', PACKAGE = 'agents', lambda, gamma, N, c)
+}
+
+boarding_fbar_update <- function(logfbar, nextsi, lambda, gamma, N, c) {
+    invisible(.Call('_agents_boarding_fbar_update', PACKAGE = 'agents', logfbar, nextsi, lambda, gamma, N, c))
+}
+
+boarding_bif_create_fast <- function(y, nextsi, logfbar, rho, N, c) {
+    .Call('_agents_boarding_bif_create_fast', PACKAGE = 'agents', y, nextsi, logfbar, rho, N, c)
+}
+
+boarding_bif_update_fast <- function(logpolicy, y, logfbar, nextsi, rho, N, c) {
+    invisible(.Call('_agents_boarding_bif_update_fast', PACKAGE = 'agents', logpolicy, y, logfbar, nextsi, rho, N, c))
+}
+
+boarding_logf_update_sparse <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
+    invisible(.Call('_agents_boarding_logf_update_sparse', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
 }
 
 boarding_sample_x_given_si_sparse <- function(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P) {

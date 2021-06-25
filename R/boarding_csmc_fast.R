@@ -1,5 +1,5 @@
-#' @title controlled SMC sampler for the boarding school dataset.
-#' @description marginal likelihood estimations. WARNING: current implementation assumes fully connected network.
+#' @title controlled SMC sampler for the boarding school dataset on sparse networks.
+#' @description marginal likelihood estimations. 
 #' @param y , observations, length (T+1)
 #' @param model_config a list containing model parameters, must pass the test of check_model_config;
 #' @param logpolicy a 3-d array storing the bif information filter
@@ -9,7 +9,7 @@
 #' @export
 
 
-boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, ess_threshold = 0.5){
+boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles = 20, ess_threshold = 0.5){
   ## logpolicy[st + 1, it + 1,t + 1] = logpsi_t(st,it)
   num_observations <- length(y);
   lognormalisingconstant <- rep(- Inf, num_observations); ## sum of lognormalising constant is final log marginal likelihood estimate
@@ -89,7 +89,7 @@ boarding_csmc_fast <- function(y, model_config, logpolicy, num_particles = 20, e
     }
     ## sample xnext according to the twisted kernel 
     for (p in 1 : num_particles){
-      stitindex[p] <- sample.int(dim(lowdimstates)[1], size = 1, replace = FALSE, prob = lw.normalize(fpsi[,p]));
+      stitindex[p] <- sample.int(dim(lowdimstates)[1], size = 1, prob = lw.normalize(fpsi[,p]));
       it[p] <- lowdimstates[stitindex[p], 2];
       st[p] <- lowdimstates[stitindex[p], 1];
     } 
