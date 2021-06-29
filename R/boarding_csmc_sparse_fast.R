@@ -94,7 +94,7 @@ boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles 
       st[p] <- lowdimstates[stitindex[p], 1];
     } 
     ## sammple xt given st and it
-    boarding_sample_x_given_si_sparse(xts, alphas2i, alphai2i, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
+    boarding_sample_x_given_si(xts, alphas2i, alphai2i, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
   }
   return(sum(lognormalisingconstant));
 }

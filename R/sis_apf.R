@@ -8,7 +8,7 @@
 #' \item 'gamma': recovery rate
 #' \item 'adjacency_matrix_b': network structure
 #' \item 'rho': reporting rate
-#' \item }
+#' }
 #' @param particle_config a list containing:
 #' \itemize{
 #' \item 'num_particles' : number of particles for the bootstrap particle filter
