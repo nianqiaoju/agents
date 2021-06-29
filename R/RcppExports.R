@@ -37,8 +37,12 @@ boarding_logf_update_sparse <- function(logf, alphas2i, alphai2i, xts, lambda, g
     invisible(.Call('_agents_boarding_logf_update_sparse', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
 }
 
-boarding_sample_x_given_si_sparse <- function(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P) {
-    invisible(.Call('_agents_boarding_sample_x_given_si_sparse', PACKAGE = 'agents', xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P))
+boarding_logf_update_full <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
+    invisible(.Call('_agents_boarding_logf_update_full', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
+}
+
+boarding_sample_x_given_si <- function(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P) {
+    invisible(.Call('_agents_boarding_sample_x_given_si', PACKAGE = 'agents', xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P))
 }
 
 logdpoisbinom_cpp <- function(alpha) {
