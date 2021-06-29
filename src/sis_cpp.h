@@ -9,7 +9,7 @@
 using namespace Rcpp;
 using namespace std;
 
-// this is a header file for all functions releated to the sis model
+// this is a header file for all functions related to the sis model
 
 NumericMatrix sis_forward_algorithm_cpp(NumericVector logf0, 
                                         NumericMatrix logdtransition,  
@@ -17,7 +17,7 @@ NumericMatrix sis_forward_algorithm_cpp(NumericVector logf0,
                                         NumericVector all_sum_x, 
                                         double rho);
 
-// the following functions computes alpha given parameters and current state, assuming a fully connected network
+// the following function computes alpha given parameters and current state, assuming a fully connected network
 
 // compute alpha(xx) given agent states and parameters
 NumericVector sis_get_alpha_full_cpp(const LogicalVector &xx,

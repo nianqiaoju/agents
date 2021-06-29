@@ -1,5 +1,5 @@
-#include <Rcpp.h>;
-#include "sampling.h";
+#include <Rcpp.h>
+#include "sampling.h"
 using namespace Rcpp;
 
 // [[Rcpp::export]]

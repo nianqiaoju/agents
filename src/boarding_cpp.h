@@ -68,8 +68,18 @@ void boarding_logf_update_sparse(NumericMatrix logf,
                                  const int & N);
 
 
+void boarding_logf_update_full(NumericMatrix logf,
+                                 NumericMatrix alphas2i,
+                                 NumericMatrix alphai2i,
+                                 const IntegerMatrix  & xts,
+                                 const NumericVector & lambda,
+                                 const NumericVector & gamma,
+                                 const IntegerMatrix & neighbors,
+                                 const int & N);
 
-void boarding_sample_x_given_si_sparse(IntegerMatrix & xts,
+
+
+void boarding_sample_x_given_si(IntegerMatrix & xts,
                                        const NumericMatrix & alphas2i,
                                        const NumericMatrix & alphai2i, 
                                        const NumericVector & lambda,

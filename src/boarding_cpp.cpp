@@ -409,6 +409,63 @@ void boarding_logf_update_sparse(NumericMatrix logf,
   }
 }
 
+/*
+ * given all particles (xts) and assuming a fully connected social network structure,
+ * update the following items:
+ * (1) logf(s(t+1), i(t+1) | xt)
+ * (2) alpha_{s to i}(xt)
+ * (3) alpha_{i to i}(xt)
+ * given the paramters lambda, gamma.
+ */
+
+// [[Rcpp::export]]
+
+void boarding_logf_update_full(NumericMatrix logf,
+                                 NumericMatrix alphas2i,
+                                 NumericMatrix alphai2i,
+                                 const IntegerMatrix  & xts,
+                                 const NumericVector & lambda,
+                                 const NumericVector & gamma,
+                                 const IntegerMatrix & neighbors,
+                                 const int & N){
+  std::fill(alphas2i.begin(), alphas2i.end(), 0);
+  std::fill(alphai2i.begin(), alphai2i.end(), 0);
+  std::fill(logf.begin(), logf.end(), R_NegInf);
+  int ineighbors;
+  int scnt, icnt;
+  int snew, inew;
+  NumericVector di2i(N + 1);
+  NumericVector ds2i(N + 1);
+  
+  for (int p = 0; p < xts.ncol(); p++){
+    // prepare for next particle
+    scnt = 0;
+    icnt = 0;
+    ineighbors = sum(xts(_,p) == 1); // the number of infections in the pth particle
+    for(int n = 0; n < xts.nrow(); n++){
+      if(xts(n,p) == 0){
+        alphas2i(n,p) = lambda[n] * ineighbors / N;
+        scnt++;
+      }else if(xts(n,p) == 1){
+        alphai2i(n,p) = 1 - gamma[n];
+        icnt++;
+      }
+    }
+    // alpha updates finished
+    di2i = logdpoisbinom_cpp(alphai2i(_,p));
+    ds2i = logdpoisbinom_cpp(alphas2i(_,p));
+    // Rprintf("probability of no change is %.2f \n", ds2i[0] + di2i[icnt]);
+    // Rprintf("(s,i) = (%i, %i)\n", scnt, icnt);
+    for(int s2i = 0; s2i <= scnt; s2i++){
+      for(int i2i = 0; i2i <= icnt; i2i++){
+        inew = s2i + i2i;
+        snew = scnt - s2i;
+        logf(boarding_lowdim2index(N, snew, inew), p) = di2i[i2i] + ds2i[s2i];
+      }
+    }
+  }
+}
+
 
 /* 
  * given the particles xts, and the updates matrices alphas2i and alphai2i, 
@@ -416,7 +473,7 @@ void boarding_logf_update_sparse(NumericMatrix logf,
  */
 
 // [[Rcpp::export]]
-void boarding_sample_x_given_si_sparse(IntegerMatrix & xts,
+void boarding_sample_x_given_si(IntegerMatrix & xts,
                                        const NumericMatrix & alphas2i,
                                        const NumericMatrix & alphai2i,
                                        const NumericVector & lambda,
