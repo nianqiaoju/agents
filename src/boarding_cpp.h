@@ -74,7 +74,6 @@ void boarding_logf_update_full(NumericMatrix logf,
                                  const IntegerMatrix  & xts,
                                  const NumericVector & lambda,
                                  const NumericVector & gamma,
-                                 const IntegerMatrix & neighbors,
                                  const int & N);
 
 

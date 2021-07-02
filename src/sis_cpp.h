@@ -24,6 +24,11 @@ NumericVector sis_get_alpha_full_cpp(const LogicalVector &xx,
                                      const NumericVector &lambda, 
                                      const NumericVector &gamma);
 
+NumericVector sis_get_alpha_sparse(const LogicalVector & xx,
+                                       const NumericVector & lambda,
+                                       const NumericVector & gamma,
+                                       const IntegerMatrix & neighbors);
+
 // gibbs samplers
 void sis_xx_gibbs_swap_full_cpp(LogicalMatrix xx, 
                                 const NumericVector &alpha0,

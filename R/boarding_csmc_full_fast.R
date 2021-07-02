@@ -51,7 +51,7 @@ boarding_csmc_full_fast <- function(y, model_config, logpolicy, num_particles = 
   for (t in 1 : (num_observations - 1)){
     ## expectation of psi[t+1] given x[t]
     ## update alphas2i, alphai2i, and logf
-    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$neighbors - 1, model_config$N);
+    boarding_logf_update_full(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$N);
     for (p in 1 : num_particles){
       fpsi[ , p] <- logf[,p] + logpolicy[ ,  t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , p]);

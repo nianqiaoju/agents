@@ -17,7 +17,7 @@ sis_apf(y, model_config, particle_config)
 \item 'gamma': recovery rate
 \item 'adjacency_matrix_b': network structure
 \item 'rho': reporting rate
-\item }}
+}}
 
 \item{particle_config}{a list containing:
 \itemize{

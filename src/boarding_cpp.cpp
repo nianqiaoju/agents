@@ -426,7 +426,6 @@ void boarding_logf_update_full(NumericMatrix logf,
                                  const IntegerMatrix  & xts,
                                  const NumericVector & lambda,
                                  const NumericVector & gamma,
-                                 const IntegerMatrix & neighbors,
                                  const int & N){
   std::fill(alphas2i.begin(), alphas2i.end(), 0);
   std::fill(alphai2i.begin(), alphai2i.end(), 0);

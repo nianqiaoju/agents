@@ -1,7 +1,7 @@
 #' @title controlled SMC sampler for SIS model with population-level observations
 #' @description controlled SMC sampler for SIS model with population-level observations
 #' @param y a vector of length (T+1)
-#' @param model_config a list containing:
+#' @param model_config
 #' @param particle_config 
 #' @return A list containing 
 #' \itemize{
@@ -15,7 +15,7 @@
 #' }
 #' @export
 
-sis_csmc <- function(y, model_config, particle_config){
+sis_csmc <- function(y, model_config, particle_config, logpolicy = NULL){
   num_observations <- length(y)
   lognormalisingconstant <- rep(-Inf, num_observations - 1)
   logweights <- logw <- rep(0, particle_config$num_particles)
@@ -25,10 +25,11 @@ sis_csmc <- function(y, model_config, particle_config){
   ### logweights: potential at the current step, use these to compute normalizing constant
   ess <- rep(1, num_observations);
   ancestors <- c(1:particle_config$num_particles)
-  if(is.null(model_config$policy)){
-    warning("policy is not given and cSMC is computing the backward information filter.\n");
-    model_config$policy <- sis_backward_information_filter_sumbin(y, model_config);
+  if(is.null(logpolicy)){
+    # warning("policy is not given and cSMC is computing the backward information filter.\n");
+    logpolicy <- sis_backward_information_filter_sumbin(y, model_config);  
   }
+  
   if(is.null(particle_config$exact)) stop("Please specify methods to use for density evalutions and for sampling.")
   if(!particle_config$exact & is.null(particle_config$num_mcmc)){
     particle_config$num_mcmc <- ceiling(model_config$N * log(model_config$N));
@@ -48,12 +49,12 @@ sis_csmc <- function(y, model_config, particle_config){
   current_support_y <- y[0 + 1] : model_config$N
   if (all(model_config$alpha0 == model_config$alpha0[1])){
     if(particle_config$verbose) cat("homogenous intial infection probability \n")
-    logvt <- dbinom(x = current_support_y, size = model_config$N , prob = model_config$alpha0[1], log = TRUE) + model_config$policy[current_support_y + 1,0 + 1]
+    logvt <- dbinom(x = current_support_y, size = model_config$N , prob = model_config$alpha0[1], log = TRUE) + logpolicy[current_support_y + 1,0 + 1]
   }else{
     if(particle_config$exact){
-      logvt <- logdpoisbinom_cpp(alpha = model_config$alpha0)[current_support_y + 1] + model_config$policy[current_support_y + 1,0 + 1]
+      logvt <- logdpoisbinom_cpp(alpha = model_config$alpha0)[current_support_y + 1] + logpolicy[current_support_y + 1,0 + 1]
     }else{
-      logvt <- logdtranspoisson_approx(alpha = model_config$alpha0, y = current_support_y) + model_config$policy[current_support_y + 1,0 + 1];
+      logvt <- logdtranspoisson_approx(alpha = model_config$alpha0, y = current_support_y) + logpolicy[current_support_y + 1,0 + 1];
     }
   }
   if(y[1] == model_config$N){
@@ -75,9 +76,9 @@ sis_csmc <- function(y, model_config, particle_config){
   logvt <- matrix(NA, nrow = length(current_support_y), ncol = particle_config$num_particles)
   for(iparticle in 1 : particle_config$num_particles){
     if(particle_config$exact){
-      logvt[,iparticle] <- logdpoisbinom_cpp(alpha = alphats[, iparticle])[current_support_y + 1] + model_config$policy[current_support_y  + 1, 0 + 1 + 1]
+      logvt[,iparticle] <- logdpoisbinom_cpp(alpha = alphats[, iparticle])[current_support_y + 1] + logpolicy[current_support_y  + 1, 0 + 1 + 1]
     }else{
-      logvt[,iparticle] <- logdtranspoisson_approx(alpha = alphats[, iparticle], y = current_support_y) + model_config$policy[current_support_y  + 1, 0 + 1 + 1]
+      logvt[,iparticle] <- logdtranspoisson_approx(alpha = alphats[, iparticle], y = current_support_y) + logpolicy[current_support_y  + 1, 0 + 1 + 1]
     }
   }
   logweights <- rep(NA, particle_config$num_particles)
@@ -85,7 +86,7 @@ sis_csmc <- function(y, model_config, particle_config){
     logweights[iparticle] <- first_cond_expecation + 
       dbinom(x = y[0 + 1], size = its[iparticle], prob = model_config$rho, log = TRUE) +
       lw.logsum(logvt[,iparticle]) - 
-      model_config$policy[its[iparticle] + 1, 0 + 1]
+      logpolicy[its[iparticle] + 1, 0 + 1]
   }
   for (t in 1 : (num_observations - 2)){
     ## store the lognormalising constants
@@ -132,9 +133,9 @@ sis_csmc <- function(y, model_config, particle_config){
     logvt <-  matrix(NA, nrow = length(current_support_y), ncol = particle_config$num_particles)
     for(iparticle in 1 : particle_config$num_particles){
       if(particle_config$exact){
-        logvt[,iparticle] <- logdpoisbinom_cpp(alpha = alphats[, iparticle])[current_support_y + 1] + model_config$policy[current_support_y  + 1, t + 1 + 1];
+        logvt[,iparticle] <- logdpoisbinom_cpp(alpha = alphats[, iparticle])[current_support_y + 1] + logpolicy[current_support_y  + 1, t + 1 + 1];
       }else{
-        logvt[,iparticle] <- logdtranspoisson_approx(alpha = alphats[, iparticle], y = current_support_y) + model_config$policy[current_support_y  + 1, t + 1 + 1];
+        logvt[,iparticle] <- logdtranspoisson_approx(alpha = alphats[, iparticle], y = current_support_y) + logpolicy[current_support_y  + 1, t + 1 + 1];
       }
     }
     ## compute logweights
@@ -142,7 +143,7 @@ sis_csmc <- function(y, model_config, particle_config){
     for(iparticle in 1 : particle_config$num_particles){
       logweights[iparticle] <- dbinom(x = y[t + 1], size = its[iparticle], prob = model_config$rho, log = TRUE) + 
         lw.logsum(logvt[,iparticle]) - 
-        model_config$policy[its[iparticle] + 1, t + 1]
+        logpolicy[its[iparticle] + 1, t + 1]
     }
     
     if(any(is.infinite(logweights))){

@@ -37,8 +37,8 @@ boarding_logf_update_sparse <- function(logf, alphas2i, alphai2i, xts, lambda, g
     invisible(.Call('_agents_boarding_logf_update_sparse', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
 }
 
-boarding_logf_update_full <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N) {
-    invisible(.Call('_agents_boarding_logf_update_full', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors, N))
+boarding_logf_update_full <- function(logf, alphas2i, alphai2i, xts, lambda, gamma, N) {
+    invisible(.Call('_agents_boarding_logf_update_full', PACKAGE = 'agents', logf, alphas2i, alphai2i, xts, lambda, gamma, N))
 }
 
 boarding_sample_x_given_si <- function(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P) {
@@ -141,6 +141,10 @@ sir_alpha_update_sparse <- function(alphas2i, alphai2i, xts, lambda, gamma, neig
 
 sis_get_alpha_full_cpp <- function(xx, lambda, gamma) {
     .Call('_agents_sis_get_alpha_full_cpp', PACKAGE = 'agents', xx, lambda, gamma)
+}
+
+sis_get_alpha_sparse <- function(xx, lambda, gamma, neighbors) {
+    .Call('_agents_sis_get_alpha_sparse', PACKAGE = 'agents', xx, lambda, gamma, neighbors)
 }
 
 sis_xx_gibbs_blocked_full_cpp <- function(xx, y, alpha0, lambda, gamma, rho, block_size, state_space) {

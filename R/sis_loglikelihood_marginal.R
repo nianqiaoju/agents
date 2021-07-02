@@ -10,10 +10,7 @@ sis_loglikelihood_marginal <- function(y, model_config, particle_config, method)
   	return(loglik)
   }
   if (method == 'csmc'){
-    particles <- replicate(n = particle_config$num_particles, 
-                           expr = sum(runif(length(alpha_)) < alpha_))
-    logweights <- dbinom(x = y, size = particles, prob = rho_, log = TRUE)
-    loglik <- lw.logmean(logweights)
+    loglik <- sis_csmc(y, model_config, particle_config)$log_final_likelihood
     return(loglik)
   }
   if(method == 'apf'){

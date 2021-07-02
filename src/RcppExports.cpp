@@ -6,11 +6,6 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
 // boarding_all_lowdim_states
 IntegerMatrix boarding_all_lowdim_states(const int N);
 RcppExport SEXP _agents_boarding_all_lowdim_states(SEXP NSEXP) {
@@ -147,9 +142,25 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// boarding_sample_x_given_si_sparse
-void boarding_sample_x_given_si_sparse(IntegerMatrix& xts, const NumericMatrix& alphas2i, const NumericMatrix& alphai2i, const NumericVector& lambda, const NumericVector& gamma, const IntegerVector& snext, const IntegerVector& inext, const int& N, const int& P);
-RcppExport SEXP _agents_boarding_sample_x_given_si_sparse(SEXP xtsSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP snextSEXP, SEXP inextSEXP, SEXP NSEXP, SEXP PSEXP) {
+// boarding_logf_update_full
+void boarding_logf_update_full(NumericMatrix logf, NumericMatrix alphas2i, NumericMatrix alphai2i, const IntegerMatrix& xts, const NumericVector& lambda, const NumericVector& gamma, const int& N);
+RcppExport SEXP _agents_boarding_logf_update_full(SEXP logfSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP xtsSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type logf(logfSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type alphas2i(alphas2iSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type alphai2i(alphai2iSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type xts(xtsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
+    boarding_logf_update_full(logf, alphas2i, alphai2i, xts, lambda, gamma, N);
+    return R_NilValue;
+END_RCPP
+}
+// boarding_sample_x_given_si
+void boarding_sample_x_given_si(IntegerMatrix& xts, const NumericMatrix& alphas2i, const NumericMatrix& alphai2i, const NumericVector& lambda, const NumericVector& gamma, const IntegerVector& snext, const IntegerVector& inext, const int& N, const int& P);
+RcppExport SEXP _agents_boarding_sample_x_given_si(SEXP xtsSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP snextSEXP, SEXP inextSEXP, SEXP NSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix& >::type xts(xtsSEXP);
@@ -161,7 +172,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector& >::type inext(inextSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
     Rcpp::traits::input_parameter< const int& >::type P(PSEXP);
-    boarding_sample_x_given_si_sparse(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P);
+    boarding_sample_x_given_si(xts, alphas2i, alphai2i, lambda, gamma, snext, inext, N, P);
     return R_NilValue;
 END_RCPP
 }
@@ -468,6 +479,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sis_get_alpha_sparse
+NumericVector sis_get_alpha_sparse(const LogicalVector& xx, const NumericVector& lambda, const NumericVector& gamma, const IntegerMatrix& neighbors);
+RcppExport SEXP _agents_sis_get_alpha_sparse(SEXP xxSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP neighborsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const LogicalVector& >::type xx(xxSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type neighbors(neighborsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sis_get_alpha_sparse(xx, lambda, gamma, neighbors));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sis_xx_gibbs_blocked_full_cpp
 void sis_xx_gibbs_blocked_full_cpp(LogicalMatrix xx, const IntegerVector& y, const NumericVector& alpha0, const NumericVector& lambda, const NumericVector& gamma, const double rho, const int block_size, const LogicalMatrix& state_space);
 RcppExport SEXP _agents_sis_xx_gibbs_blocked_full_cpp(SEXP xxSEXP, SEXP ySEXP, SEXP alpha0SEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP rhoSEXP, SEXP block_sizeSEXP, SEXP state_spaceSEXP) {
@@ -608,7 +633,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_boarding_bif_create_fast", (DL_FUNC) &_agents_boarding_bif_create_fast, 6},
     {"_agents_boarding_bif_update_fast", (DL_FUNC) &_agents_boarding_bif_update_fast, 7},
     {"_agents_boarding_logf_update_sparse", (DL_FUNC) &_agents_boarding_logf_update_sparse, 8},
-    {"_agents_boarding_sample_x_given_si_sparse", (DL_FUNC) &_agents_boarding_sample_x_given_si_sparse, 9},
+    {"_agents_boarding_logf_update_full", (DL_FUNC) &_agents_boarding_logf_update_full, 7},
+    {"_agents_boarding_sample_x_given_si", (DL_FUNC) &_agents_boarding_sample_x_given_si, 9},
     {"_agents_logdpoisbinom_cpp", (DL_FUNC) &_agents_logdpoisbinom_cpp, 1},
     {"_agents_logdbern_sum_cpp", (DL_FUNC) &_agents_logdbern_sum_cpp, 2},
     {"_agents_lw_logsum_cpp", (DL_FUNC) &_agents_lw_logsum_cpp, 1},
@@ -632,6 +658,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_agents_sir_sample_x_given_si", (DL_FUNC) &_agents_sir_sample_x_given_si, 7},
     {"_agents_sir_alpha_update_sparse", (DL_FUNC) &_agents_sir_alpha_update_sparse, 7},
     {"_agents_sis_get_alpha_full_cpp", (DL_FUNC) &_agents_sis_get_alpha_full_cpp, 3},
+    {"_agents_sis_get_alpha_sparse", (DL_FUNC) &_agents_sis_get_alpha_sparse, 4},
     {"_agents_sis_xx_gibbs_blocked_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_blocked_full_cpp, 8},
     {"_agents_sis_xx_gibbs_singlesite_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_singlesite_full_cpp, 6},
     {"_agents_sis_xx_gibbs_swap_full_cpp", (DL_FUNC) &_agents_sis_xx_gibbs_swap_full_cpp, 4},

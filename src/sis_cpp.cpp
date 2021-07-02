@@ -9,6 +9,7 @@ using namespace std;
 
 /* 
  * compute the infection probabilities given previous state, lambda and gamma
+ * for the fully connected network
  */
 
 // [[Rcpp::export]]
@@ -25,6 +26,36 @@ NumericVector sis_get_alpha_full_cpp(const LogicalVector &xx,
   return alpha;
 }
 
+/*
+ * for a sparse network, 
+ * compute the infection probabilities given previous state, lambda and gamma.
+ * network given in matrix neighbors, where neighbors(n, _) is a list of neighbors of agent n.
+ * neighbors(n, _) = (1,2,4,-1,-1,-1) means that agent 1,2, and 4 are neighbors with agent n. 
+ */
+// [[Rcpp::export]]
+NumericVector sis_get_alpha_sparse(const LogicalVector & xx,
+                                   const NumericVector & lambda,
+                                   const NumericVector & gamma,
+                                   const IntegerMatrix & neighbors){
+  NumericVector alpha(xx.length());
+  int sumIn; // sum of infectious neighbors
+  int Dn; // number of neighbors
+  for(int n = 0; n< xx.length(); n++){
+    sumIn = 0;
+    Dn = 0;
+    if(xx[n]){
+      alpha[n] = 1 - gamma[n];
+    }else{
+      // alpha[n] = lambda[n] * number of infected neighors of n / number of neighbors of n 
+      while(neighbors(n, Dn) > 0 & Dn < neighbors.ncol()){
+        sumIn += xx[neighbors(n, Dn)];
+        Dn ++;
+        }
+      if(sumIn > 0){alpha[n] = lambda[n] * sumIn / Dn;}
+      }
+    }
+  return alpha;
+  }
 
 /*
  * given parameters and observations,performs blocked updates of the hidden states X;
