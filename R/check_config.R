@@ -1,10 +1,17 @@
 #' @title check  model configurations
 #' @description this function checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.
-#' @param model_config a list that must contain: TODO
+#' @param model_config a list that must contain
+#' \itemize{
+#' \item N, population size;
+#' \item network_type, full or sparse;
+#' \item for sparse network, must give a matrix `neighbors`, whose rows look like (1,2,4,-1,-1).;
+#' \item parameters alpha0,lambda,gamma, and rho.
+#' }
+#' 
 #' @export
 check_model_config <- function(model_config){
   if(is.null(model_config$N)) stop("please specify population size");
-  if(is.null(model_config$network_type)) stop("please specify network type. it can be full or general");
+  if(is.null(model_config$network_type)) stop("please specify network type. it can be full or sparse.");
   match.arg(model_config$network_type, choices = c("full", "sparse"));
   if(model_config$network_type == "sparse"){
     if(is.null(model_config$neighbors)) stop("please give N(n)");
@@ -21,7 +28,7 @@ check_model_config <- function(model_config){
 
 #' @title check particle configurations
 #' @description  this function checks if particle_config is eligible as input for particle filters
-#' @param particle_config a list that contains that must contain: TODO
+#' @param particle_config a list that contains that must contain: `num_particles` and `ess_threshold`.
 #' @export
 check_particle_config <- function(particle_config){
   if(is.null(particle_config$num_particles)) stop("please specify number of particles");
@@ -31,8 +38,8 @@ check_particle_config <- function(particle_config){
   if(is.null(particle_config$clock)) particle_config$clock <- FALSE;
   if(is.null(particle_config$verbose)) particle_config$verbose <- FALSE;
   if(is.null(particle_config$exact)){
-   stop("using exact Poisbinom densities or exact CondBern samplers?");
-    particle_config$exact <- T;
+    stop("using exact Poisbinom densities or exact CondBern samplers?");
+    particle_config$exact <- TRUE;
   }
   particle_config;
 }

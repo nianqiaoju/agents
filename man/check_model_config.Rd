@@ -7,7 +7,13 @@
 check_model_config(model_config)
 }
 \arguments{
-\item{model_config}{a list that must contain: TODO}
+\item{model_config}{a list that must contain
+\itemize{
+\item N, population size;
+\item network_type, full or sparse;
+\item for sparse network, must give a matrix `neighbors`, whose rows look like (1,2,4,-1,-1).;
+\item parameters alpha0,lambda,gamma, and rho.
+}}
 }
 \description{
 this function checks if model_config is eligible as input for simulations, particle filters and gibbs samplers.

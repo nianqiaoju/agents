@@ -1,17 +1,17 @@
 #' @title controlled SMC sampler for SIS model with population-level observations
 #' @description controlled SMC sampler for SIS model with population-level observations
 #' @param y a vector of length (T+1)
-#' @param model_config
-#' @param particle_config 
+#' @param model_config must pass the test of `check_model_config`
+#' @param particle_config must pass the test of `check_model_config`, contains at least num_particles and ess_threshold.
 #' @return A list containing 
 #' \itemize{
 #' \item 'log_final_likelihood' : log marginal likelihood estimator;
 #' \item 'xT': sample from xT given y(0:T);
 #' \item 'particles': [N, (T+1), num_particles] array storing the particles, if particle_config$save_particles = TRUE'; 
-#' \item 'eves' : the unique ancesters of each particle in the genealogy structure, if save_genealogy = TRUE;
+#' \item 'eves' : the unique ancesters of each particle in the genealogy structure, if particle_config$save_genealogy = TRUE;
 #' \item 'ess' : effective sample size at each step
-#' \item 'runtime' : elapse time at each step, if clock = TRUE;
-#' \item 'totaltime' : elapse time of running the whole particle filter, if clock = TRUE;
+#' \item 'runtime' : elapse time at each step, if particle_config$clock = TRUE;
+#' \item 'totaltime' : elapse time of running the whole particle filter, if particle_config$clock = TRUE;
 #' }
 #' @export
 
@@ -29,21 +29,16 @@ sis_csmc <- function(y, model_config, particle_config, logpolicy = NULL){
     # warning("policy is not given and cSMC is computing the backward information filter.\n");
     logpolicy <- sis_backward_information_filter_sumbin(y, model_config);  
   }
-  
-  if(is.null(particle_config$exact)) stop("Please specify methods to use for density evalutions and for sampling.")
   if(!particle_config$exact & is.null(particle_config$num_mcmc)){
     particle_config$num_mcmc <- ceiling(model_config$N * log(model_config$N));
     warning("Running nlogn iterations of MCMC for CondBern")
   }
-  if(particle_config$save_particles)  particles <- array(NA, dim = c(model_config$N, num_observations, particle_config$num_particles))
-  if(particle_config$save_genealogy){
-    eves <- c(1 : particle_config$num_particles)
-  } 
+  if(particle_config$save_particles) particles <- array(NA, dim = c(model_config$N, num_observations, particle_config$num_particles))
+  if(particle_config$save_genealogy) eves <- c(1 : particle_config$num_particles);
   if(particle_config$clock){
     runtimes <- rep(NA,num_observations - 1)
     startstopwatch <- as.numeric(Sys.time())
   }
-  if(is.null(particle_config$ess_threshold)) stop("Please specify ess_threshold for resampling.");
   if(particle_config$verbose) cat("[ess threhold is", particle_config$ess_threshold,"]\n");
   ## treat t = 0 differently 
   current_support_y <- y[0 + 1] : model_config$N

@@ -12,7 +12,7 @@ sis_simulate(days, model_config, dt = 1)
 \item{model_config}{a list containing
 \itemize{
 \item N
-\item adjacency matrix
+\item network_type, "full" or "sparse"
 \item alpha0
 \item gamma
 \item beta
@@ -25,7 +25,6 @@ a list containing
 \itemize{
 \item agent_states : a binary matrix containing the hidden states, size is N by (days + 1)
 \item y : a vector of reports, length is days + 1
-\item 
 }
 }
 \description{

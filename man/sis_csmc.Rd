@@ -4,14 +4,14 @@
 \alias{sis_csmc}
 \title{controlled SMC sampler for SIS model with population-level observations}
 \usage{
-sis_csmc(y, model_config, particle_config)
+sis_csmc(y, model_config, particle_config, logpolicy = NULL)
 }
 \arguments{
 \item{y}{a vector of length (T+1)}
 
-\item{model_config}{a list containing:}
+\item{model_config}{must pass the test of `check_model_config`}
 
-\item{particle_config}{}
+\item{particle_config}{must pass the test of `check_model_config`, contains at least num_particles and ess_threshold.}
 }
 \value{
 A list containing 
@@ -19,10 +19,10 @@ A list containing
 \item 'log_final_likelihood' : log marginal likelihood estimator;
 \item 'xT': sample from xT given y(0:T);
 \item 'particles': [N, (T+1), num_particles] array storing the particles, if particle_config$save_particles = TRUE'; 
-\item 'eves' : the unique ancesters of each particle in the genealogy structure, if save_genealogy = TRUE;
+\item 'eves' : the unique ancesters of each particle in the genealogy structure, if particle_config$save_genealogy = TRUE;
 \item 'ess' : effective sample size at each step
-\item 'runtime' : elapse time at each step, if clock = TRUE;
-\item 'totaltime' : elapse time of running the whole particle filter, if clock = TRUE;
+\item 'runtime' : elapse time at each step, if particle_config$clock = TRUE;
+\item 'totaltime' : elapse time of running the whole particle filter, if particle_config$clock = TRUE;
 }
 }
 \description{

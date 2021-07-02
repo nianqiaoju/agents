@@ -7,7 +7,7 @@
 check_particle_config(particle_config)
 }
 \arguments{
-\item{particle_config}{a list that contains that must contain: TODO}
+\item{particle_config}{a list that contains that must contain: `num_particles` and `ess_threshold`.}
 }
 \description{
 this function checks if particle_config is eligible as input for particle filters

@@ -15,7 +15,7 @@ boarding_csmc_sparse_fast(
 \arguments{
 \item{y}{, observations, length (T+1)}
 
-\item{model_config}{a list containing model parameters, must pass the test of check_model_config;}
+\item{model_config}{a list containing model parameters. network type is sparse and neighbors matrix is given.}
 
 \item{logpolicy}{a 3-d array storing the bif information filter}
 
