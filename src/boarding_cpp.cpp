@@ -361,8 +361,8 @@ void boarding_logf_update_sparse(NumericMatrix logf,
                           NumericMatrix alphas2i,
                           NumericMatrix alphai2i,
                           const IntegerMatrix  & xts,
-                          const NumericVector & lambda,
-                          const NumericVector & gamma,
+                          const double & lambda,
+                          const double & gamma,
                           const IntegerMatrix & neighbors,
                           const int & N){
   std::fill(alphas2i.begin(), alphas2i.end(), 0);
@@ -387,10 +387,10 @@ void boarding_logf_update_sparse(NumericMatrix logf,
         }
         // Rprintf("agent %i has %i neighbors\n", n, mindex);
         // mindex is the number of neighbors of agent n 
-        alphas2i(n,p) = lambda[n] * ineighbors / mindex;
+        alphas2i(n,p) = lambda * ineighbors / mindex;
         scnt++;
       }else if(xts(n,p) == 1){
-        alphai2i(n,p) = 1 - gamma[n];
+        alphai2i(n,p) = 1 - gamma;
         icnt++;
       }
     }
@@ -424,8 +424,8 @@ void boarding_logf_update_full(NumericMatrix logf,
                                  NumericMatrix alphas2i,
                                  NumericMatrix alphai2i,
                                  const IntegerMatrix  & xts,
-                                 const NumericVector & lambda,
-                                 const NumericVector & gamma,
+                                 const double & lambda,
+                                 const double & gamma,
                                  const int & N){
   std::fill(alphas2i.begin(), alphas2i.end(), 0);
   std::fill(alphai2i.begin(), alphai2i.end(), 0);
@@ -443,10 +443,10 @@ void boarding_logf_update_full(NumericMatrix logf,
     ineighbors = sum(xts(_,p) == 1); // the number of infections in the pth particle
     for(int n = 0; n < xts.nrow(); n++){
       if(xts(n,p) == 0){
-        alphas2i(n,p) = lambda[n] * ineighbors / N;
+        alphas2i(n,p) = lambda * ineighbors / N;
         scnt++;
       }else if(xts(n,p) == 1){
-        alphai2i(n,p) = 1 - gamma[n];
+        alphai2i(n,p) = 1 - gamma;
         icnt++;
       }
     }
@@ -475,8 +475,6 @@ void boarding_logf_update_full(NumericMatrix logf,
 void boarding_sample_x_given_si(IntegerMatrix & xts,
                                        const NumericMatrix & alphas2i,
                                        const NumericMatrix & alphai2i,
-                                       const NumericVector & lambda,
-                                       const NumericVector & gamma,
                                        const IntegerVector & snext,
                                        const IntegerVector & inext,
                                        const int & N,

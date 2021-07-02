@@ -6,7 +6,12 @@
 \usage{
 boarding_csmc_sparse_fast(
   y,
-  model_config,
+  N,
+  alpha0,
+  lambda,
+  gamma,
+  rho,
+  neighbors,
   logpolicy,
   num_particles = 20,
   ess_threshold = 0.5
@@ -15,13 +20,25 @@ boarding_csmc_sparse_fast(
 \arguments{
 \item{y}{, observations, length (T+1)}
 
-\item{model_config}{a list containing model parameters. network type is sparse and neighbors matrix is given.}
+\item{N, }{population size}
+
+\item{alpha0, }{vector, initial infection probabilities}
+
+\item{lambda, }{double, transmission potential}
+
+\item{gamma, }{double, recovery rate}
+
+\item{rho, }{double, reporting rate}
 
 \item{logpolicy}{a 3-d array storing the bif information filter}
 
 \item{num_particles}{number of particles, default to 20}
 
 \item{ess_threshold}{adaptive resampling ESS threshold, default to 0.5}
+
+\item{neigbors, }{matrix storing network information.}
+
+\item{model_config}{a list containing model parameters. network type is sparse and neighbors matrix is given.}
 }
 \value{
 estimated log marginal likelihood

@@ -1,6 +1,12 @@
 #' @title controlled SMC sampler for the boarding school dataset on sparse networks.
 #' @description marginal likelihood estimations. 
 #' @param y , observations, length (T+1)
+#' @param N, population size
+#' @param alpha0, vector, initial infection probabilities
+#' @param lambda, double, transmission potential
+#' @param gamma, double, recovery rate
+#' @param rho, double, reporting rate
+#' @param neigbors, matrix storing network information. 
 #' @param model_config a list containing model parameters. network type is sparse and neighbors matrix is given.
 #' @param logpolicy a 3-d array storing the bif information filter
 #' @param num_particles number of particles, default to 20
@@ -8,8 +14,7 @@
 #' @return estimated log marginal likelihood
 #' @export
 
-boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles = 20, ess_threshold = 0.5){
-  ## logpolicy[st + 1, it + 1,t + 1] = logpsi_t(st,it)
+boarding_csmc_sparse_fast <- function(y, N, alpha0, lambda, gamma, rho, neighbors, logpolicy, num_particles = 20, ess_threshold = 0.5){
   num_observations <- length(y);
   lognormalisingconstant <- rep(- Inf, num_observations); ## sum of lognormalising constant is final log marginal likelihood estimate
   logweights <- logw  <- logW <- rep(0, num_particles); 
@@ -18,17 +23,17 @@ boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles 
   ## average of weights is one step normalisingconstant
   ## storage and samples
   stitindex <- it <- st <- integer(num_particles);
-  xts <- matrix(NA, ncol = num_particles, nrow = model_config$N);
-  alphas2i <- alphai2i <-  matrix(0, nrow = model_config$N, ncol = num_particles);
+  xts <- matrix(NA, ncol = num_particles, nrow = N);
+  alphas2i <- alphai2i <-  matrix(0, nrow = N, ncol = num_particles);
   logf <- fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
   ## logf stores the kernel f(snext,inext given xnow), each column is a particle
   ## fpsi this is the product of f * psi 
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
   t <- 0; ## treat t = 0 differently, because r0 = 0 by alpha0
   ## mu0(s0,i0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
-  logmu <- logdpoisbinom(model_config$alpha0);
+  logmu <- logdpoisbinom(alpha0);
   lpost_x0 <- function(si){
-    if(si[2] + si[1] == model_config$N){
+    if(si[2] + si[1] == N){
       return(logmu[1+si[2]]) 
     }else{
       return(-Inf)
@@ -46,12 +51,12 @@ boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles 
   it <- lowdimstates[stitindex, 2];
   st <- lowdimstates[stitindex, 1];
   for (p in 1:num_particles){## can vectorize this later 
-    xts[,p] <- as.integer(rcondbern(sum_x = it[p], alpha = model_config$alpha0, exact = TRUE));
+    xts[,p] <- as.integer(rcondbern(sum_x = it[p], alpha = alpha0, exact = TRUE));
   }
   for (t in 1 : (num_observations - 1)){
     ### step 1 - compute weights of each particle
     ## update alphas2i, alphai2i, and logf
-    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, model_config$lambda, model_config$gamma, model_config$neighbors - 1, model_config$N);
+    boarding_logf_update_sparse(logf, alphas2i, alphai2i, xts, lambda, gamma, neighbors - 1, N);
     ## expectation of psi[t+1] given x[t]
     for (p in 1 : num_particles){
       fpsi[ , p] <- logf[,p] + logpolicy[ ,  t + 1];
@@ -59,7 +64,7 @@ boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles 
     }
     ## unnormalized weight = p(yt | xt) * expecation(policy[t+1] |xt) / policy[t](xt)
     for (p in 1 : num_particles){
-      logweights[p] <- logcondexp[p] + dbinom(x = y[t + 1], size = it[p], prob = model_config$rho, log = TRUE) - logpolicy[stitindex[p], t];
+      logweights[p] <- logcondexp[p] + dbinom(x = y[t + 1], size = it[p], prob = rho, log = TRUE) - logpolicy[stitindex[p], t];
     }
     ### step 2 -- compute normalizing constant given the weights
     maxlogweights <- max(logweights);
@@ -92,7 +97,7 @@ boarding_csmc_sparse_fast <- function(y, model_config, logpolicy, num_particles 
       it[p] <- lowdimstates[stitindex[p], 2];
       st[p] <- lowdimstates[stitindex[p], 1];
     } 
-    boarding_sample_x_given_si(xts, alphas2i, alphai2i, model_config$lambda, model_config$gamma, st, it, model_config$N, num_particles);
+    boarding_sample_x_given_si(xts, alphas2i, alphai2i, st, it, N, num_particles);
   }
   return(sum(lognormalisingconstant));
 }

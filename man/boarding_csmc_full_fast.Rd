@@ -6,7 +6,10 @@
 \usage{
 boarding_csmc_full_fast(
   y,
-  model_config,
+  N,
+  alpha0,
+  lambda,
+  gamma,
   logpolicy,
   num_particles = 20,
   ess_threshold = 0.5
@@ -15,13 +18,21 @@ boarding_csmc_full_fast(
 \arguments{
 \item{y}{, observations, length (T+1)}
 
-\item{model_config}{a list containing model parameters, must pass the test of check_model_config;}
+\item{N, }{population size}
+
+\item{alpha0, }{a vector of initial infection probabilities}
+
+\item{lambda, }{double, transmission potential}
+
+\item{gamma, }{double, recovery rate}
 
 \item{logpolicy}{a 3-d array storing the bif information filter}
 
 \item{num_particles}{number of particles, default to 20}
 
 \item{ess_threshold}{adaptive resampling ESS threshold, default to 0.5}
+
+\item{rho, }{double, reporting rate}
 }
 \value{
 estimated log marginal likelihood

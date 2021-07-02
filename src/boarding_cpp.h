@@ -62,8 +62,8 @@ void boarding_logf_update_sparse(NumericMatrix logf,
                                  NumericMatrix alphas2i,
                                  NumericMatrix alphai2i,
                                  const IntegerMatrix  & xts,
-                                 const NumericVector & lambda,
-                                 const NumericVector & gamma,
+                                 const double & lambda,
+                                 const double & gamma,
                                  const IntegerMatrix & neighbors,
                                  const int & N);
 
@@ -72,20 +72,18 @@ void boarding_logf_update_full(NumericMatrix logf,
                                  NumericMatrix alphas2i,
                                  NumericMatrix alphai2i,
                                  const IntegerMatrix  & xts,
-                                 const NumericVector & lambda,
-                                 const NumericVector & gamma,
+                                 const double & lambda,
+                                 const double & gamma,
                                  const int & N);
 
 
 
 void boarding_sample_x_given_si(IntegerMatrix & xts,
-                                       const NumericMatrix & alphas2i,
-                                       const NumericMatrix & alphai2i, 
-                                       const NumericVector & lambda,
-                                       const NumericVector & gamma, 
-                                       const IntegerVector & snext,
-                                       const IntegerVector & inext,
-                                       const int & N,
-                                       const int & P);
+                                const NumericMatrix & alphas2i,
+                                const NumericMatrix & alphai2i, 
+                                const IntegerVector & snext,
+                                const IntegerVector & inext,
+                                const int & N,
+                                const int & P);
 
 #endif
