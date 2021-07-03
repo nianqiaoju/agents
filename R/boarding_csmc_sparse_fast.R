@@ -2,7 +2,7 @@
 #' @description marginal likelihood estimations. 
 #' @param y , observations, length (T+1)
 #' @param N, population size
-#' @param alpha0, vector, initial infection probabilities
+#' @param alpha0, double, initial infection probability
 #' @param lambda, double, transmission potential
 #' @param gamma, double, recovery rate
 #' @param rho, double, reporting rate
@@ -31,15 +31,15 @@ boarding_csmc_sparse_fast <- function(y, N, alpha0, lambda, gamma, rho, neighbor
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
   t <- 0; ## treat t = 0 differently, because r0 = 0 by alpha0
   ## mu0(s0,i0) * policy_0(s0,i0) for (s0,i0) in supp(s0,i0);
-  logmu <- logdpoisbinom(alpha0);
-  lpost_x0 <- function(si){
+  ## the normalising constant is logz0
+  ldx0 <- function(si){
     if(si[2] + si[1] == N){
-      return(logmu[1+si[2]]) 
+      return(dbinom(x = si[2], size = N, prob = alpha0, log = TRUE))
     }else{
       return(-Inf)
     }
   }
-  logposterior <- apply(lowdimstates, 1, function(si) lpost_x0(si));
+  logposterior <- apply(lowdimstates, 1, function(si) ldx0(si));
   logposterior <- logposterior + logpolicy[, t + 1];
   maxlogposterior <- max(logposterior);
   logposterior <- logposterior - maxlogposterior;

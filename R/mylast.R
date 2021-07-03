@@ -8,6 +8,6 @@ mylast <- function(x, rm.na = FALSE){
     ## this is assuming that all NA's are at the end of the vector.
     return(x[sum(!is.na(x))])
   }else{
-    return(rm.na)
+    return(x[length(x)]);
   }
 }
