@@ -6,8 +6,6 @@
 #' @export
 
 
-## this function uses the sample_smallworld function from package igraph, but I do not completely understand the algorithms there
-## according to wikipedia, I can implement my own sample_smallworld and it requires fewer parameters
 network_sample_gnp <- function(N, p = 0.1){
 	gnp <- igraph::sample_gnp(n = N, p = p);
 	adj_gnp <- igraph::as_adjacency_matrix(gnp);
