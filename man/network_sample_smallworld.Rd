@@ -15,6 +15,9 @@ network_sample_smallworld(N, dim = 1, nei = 1, p = 0.3)
 
 \item{p}{real constant between zero and one, the rewiring probability.}
 }
+\value{
+a matrix whose n-th row is \math{N(n)}
+}
 \description{
-sample a small world graph and return the (normalized) adjacency matrix
+sample a small world graph and return the `neighbors' matrix representing the graph.
 }

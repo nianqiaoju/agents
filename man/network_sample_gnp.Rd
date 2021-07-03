@@ -4,12 +4,15 @@
 \alias{network_sample_gnp}
 \title{G(n,p) Erdos-Renyi model}
 \usage{
-network_sample_gnp(N, p = 0.5)
+network_sample_gnp(N, p = 0.1)
 }
 \arguments{
 \item{N}{integer constant, the population size.}
 
 \item{p}{the probability for drawing an edge between any two vertices, default to 0.5.}
+}
+\value{
+a matrix whose n-th row is \math{N(n)}
 }
 \description{
 sample a random graph with n vertices and m edges

@@ -22,7 +22,7 @@ boarding_csmc_sparse_fast(
 
 \item{N, }{population size}
 
-\item{alpha0, }{vector, initial infection probabilities}
+\item{alpha0, }{double, initial infection probability}
 
 \item{lambda, }{double, transmission potential}
 

@@ -1,9 +1,10 @@
 #' @title Small world graph
-#' @description sample a small world graph and return the (normalized) adjacency matrix
+#' @description sample a small world graph and return the `neighbors' matrix representing the graph.
 #' @param N integer constant, the population size.
 #' @param dim integer constant, dimension of the starting lattice;
 #' @param nei integer constant, the neighborhood within which the vertices of the lattice will be connected.
 #' @param p real constant between zero and one, the rewiring probability.
+#' @return a matrix whose n-th row is \math{N(n)}
 #' @export
 
 
@@ -12,7 +13,11 @@
 network_sample_smallworld <- function(N, dim = 1, nei = 1, p = 0.3){
 	sw <- igraph::sample_smallworld(dim = dim, size = N, nei = nei, p = p);
 	adj_sw <- igraph::as_adjacency_matrix(sw);
-	diag(adj_sw) <- rep(1,N);
-	adj_sw <- apply(adj_sw,2,function(col_) col_ / sum(col_));
-	return(adj_sw);
+	degrees <- apply(adj_sw, 1, sum);
+	mdegree <- max(degrees);
+	neighbors <- matrix(0, nrow = N, ncol = mdegree);
+	for(n in 1 : N){
+	  if(degrees[n] > 0) neighbors[n, 1 : degrees[n]] <- which(adj_sw[n, ] == 1);
+	}
+	neighbors
 }

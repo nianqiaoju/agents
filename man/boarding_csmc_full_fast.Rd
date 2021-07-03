@@ -10,6 +10,7 @@ boarding_csmc_full_fast(
   alpha0,
   lambda,
   gamma,
+  rho,
   logpolicy,
   num_particles = 20,
   ess_threshold = 0.5
@@ -20,19 +21,19 @@ boarding_csmc_full_fast(
 
 \item{N, }{population size}
 
-\item{alpha0, }{a vector of initial infection probabilities}
+\item{alpha0, }{double, initial infection probability}
 
 \item{lambda, }{double, transmission potential}
 
 \item{gamma, }{double, recovery rate}
+
+\item{rho, }{double, reporting rate}
 
 \item{logpolicy}{a 3-d array storing the bif information filter}
 
 \item{num_particles}{number of particles, default to 20}
 
 \item{ess_threshold}{adaptive resampling ESS threshold, default to 0.5}
-
-\item{rho, }{double, reporting rate}
 }
 \value{
 estimated log marginal likelihood
