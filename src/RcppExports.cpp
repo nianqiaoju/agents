@@ -159,19 +159,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // boarding_sample_x_given_si
-void boarding_sample_x_given_si(IntegerMatrix& xts, const NumericMatrix& alphas2i, const NumericMatrix& alphai2i, const IntegerVector& snext, const IntegerVector& inext, const int& N, const int& P);
+IntegerMatrix boarding_sample_x_given_si(IntegerMatrix xts, const NumericMatrix& alphas2i, const NumericMatrix& alphai2i, const IntegerVector& snext, const IntegerVector& inext, const int& N, const int& P);
 RcppExport SEXP _agents_boarding_sample_x_given_si(SEXP xtsSEXP, SEXP alphas2iSEXP, SEXP alphai2iSEXP, SEXP snextSEXP, SEXP inextSEXP, SEXP NSEXP, SEXP PSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type xts(xtsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type xts(xtsSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type alphas2i(alphas2iSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type alphai2i(alphai2iSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type snext(snextSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type inext(inextSEXP);
     Rcpp::traits::input_parameter< const int& >::type N(NSEXP);
     Rcpp::traits::input_parameter< const int& >::type P(PSEXP);
-    boarding_sample_x_given_si(xts, alphas2i, alphai2i, snext, inext, N, P);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(boarding_sample_x_given_si(xts, alphas2i, alphai2i, snext, inext, N, P));
+    return rcpp_result_gen;
 END_RCPP
 }
 // logdpoisbinom_cpp

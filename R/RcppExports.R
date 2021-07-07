@@ -42,7 +42,7 @@ boarding_logf_update_full <- function(logf, alphas2i, alphai2i, xts, lambda, gam
 }
 
 boarding_sample_x_given_si <- function(xts, alphas2i, alphai2i, snext, inext, N, P) {
-    invisible(.Call('_agents_boarding_sample_x_given_si', PACKAGE = 'agents', xts, alphas2i, alphai2i, snext, inext, N, P))
+    .Call('_agents_boarding_sample_x_given_si', PACKAGE = 'agents', xts, alphas2i, alphai2i, snext, inext, N, P)
 }
 
 logdpoisbinom_cpp <- function(alpha) {

@@ -421,12 +421,12 @@ void boarding_logf_update_sparse(NumericMatrix logf,
 // [[Rcpp::export]]
 
 void boarding_logf_update_full(NumericMatrix logf,
-                                 NumericMatrix alphas2i,
-                                 NumericMatrix alphai2i,
-                                 const IntegerMatrix  & xts,
-                                 const double & lambda,
-                                 const double & gamma,
-                                 const int & N){
+                               NumericMatrix alphas2i,
+                               NumericMatrix alphai2i,
+                               const IntegerMatrix  & xts,
+                               const double & lambda,
+                               const double & gamma,
+                               const int & N){
   std::fill(alphas2i.begin(), alphas2i.end(), 0);
   std::fill(alphai2i.begin(), alphai2i.end(), 0);
   std::fill(logf.begin(), logf.end(), R_NegInf);
@@ -437,19 +437,21 @@ void boarding_logf_update_full(NumericMatrix logf,
   NumericVector ds2i(N + 1);
   
   for (int p = 0; p < xts.ncol(); p++){
-    // prepare for next particle
     scnt = 0;
     icnt = 0;
     ineighbors = sum(xts(_,p) == 1); // the number of infections in the pth particle
     for(int n = 0; n < xts.nrow(); n++){
       if(xts(n,p) == 0){
         alphas2i(n,p) = lambda * ineighbors / N;
+        alphai2i(n,p) = 0;
         scnt++;
       }else if(xts(n,p) == 1){
         alphai2i(n,p) = 1 - gamma;
+        alphas2i(n,p) = 0;
         icnt++;
       }
     }
+    // Rprintf("p = %i, scnt = %i, icnt = %i \n", p, scnt, icnt);
     // alpha updates finished
     di2i = logdpoisbinom_cpp(alphai2i(_,p));
     ds2i = logdpoisbinom_cpp(alphas2i(_,p));
@@ -472,13 +474,13 @@ void boarding_logf_update_full(NumericMatrix logf,
  */
 
 // [[Rcpp::export]]
-void boarding_sample_x_given_si(IntegerMatrix & xts,
-                                       const NumericMatrix & alphas2i,
-                                       const NumericMatrix & alphai2i,
-                                       const IntegerVector & snext,
-                                       const IntegerVector & inext,
-                                       const int & N,
-                                       const int & P){
+IntegerMatrix boarding_sample_x_given_si(IntegerMatrix xts,
+                                const NumericMatrix & alphas2i,
+                                const NumericMatrix & alphai2i,
+                                const IntegerVector & snext,
+                                const IntegerVector & inext,
+                                const int & N,
+                                const int & P){
   int snow, inow;
   int s2i, i2i;
   LogicalVector xxsi(N);
@@ -500,9 +502,9 @@ void boarding_sample_x_given_si(IntegerMatrix & xts,
     GetRNGstate();
     rand = runif(N);
     PutRNGstate();
-    
     xxii = idchecking_cpp(i2i, alphai2i(_,p), rand);
     xxi = mapply(xxsi, xxii, xory);
+    // xxi indicates whether x[t+1,n] == 1
     
     for(int n = 0; n < N; n++){
       if(xxi[n]){
@@ -511,7 +513,8 @@ void boarding_sample_x_given_si(IntegerMatrix & xts,
         // 0 -> 0; 1 -> 2; 2 -> 2;
         xts(n,p) = (xts(n,p) == 0)? 0 : 2;
       }
+      // Rcout <<  "particle" << n << "," <<  p << "becomes" << xts(n,p) <<"\n";
     }
   }
-  // return xts;
+  return xts;
 }

@@ -22,7 +22,7 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
   logweights <- logw  <- logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
   ## storage and samples
   stitindex <- it <- st <- integer(num_particles);
-  xts <- matrix(NA, ncol = num_particles, nrow = N);
+  xts <- matrix(0, ncol = num_particles, nrow = N);
   alphas2i <- alphai2i <-  matrix(0, nrow = N, ncol = num_particles);
   logf <- fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
   ## logf stores the kernel f(snext,inext given xnow)
@@ -48,8 +48,8 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
   stitindex <- sample.int(dim(lowdimstates)[1], size = num_particles, replace = TRUE, prob = normalizedposterior);
   it <- lowdimstates[stitindex, 2];
   st <- lowdimstates[stitindex, 1];
-  for (p in 1:num_particles){## can vectorize this later 
-    xts[,p] <- as.integer(rcondbern(sum_x = it[p], alpha = alpha0, exact = TRUE));
+  for (p in 1:num_particles){
+    xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- 1; 
   }
   for (t in 1 : (num_observations - 1)){
     ### step 1 - compute weights of each particle
@@ -96,7 +96,7 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
       it[p] <- lowdimstates[stitindex[p], 2];
       st[p] <- lowdimstates[stitindex[p], 1];
     } 
-    boarding_sample_x_given_si(xts, alphas2i, alphai2i, st, it, N, num_particles);
+    xts <- boarding_sample_x_given_si(xts, alphas2i, alphai2i, st, it, N, num_particles);
   }
   return(sum(lognormalisingconstant));
 }
