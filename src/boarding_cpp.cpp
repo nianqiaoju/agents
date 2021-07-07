@@ -443,11 +443,9 @@ void boarding_logf_update_full(NumericMatrix logf,
     for(int n = 0; n < xts.nrow(); n++){
       if(xts(n,p) == 0){
         alphas2i(n,p) = lambda * ineighbors / N;
-        alphai2i(n,p) = 0;
         scnt++;
       }else if(xts(n,p) == 1){
         alphai2i(n,p) = 1 - gamma;
-        alphas2i(n,p) = 0;
         icnt++;
       }
     }

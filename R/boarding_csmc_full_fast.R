@@ -51,10 +51,11 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
   for (p in 1:num_particles){
     xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- 1; 
   }
+  
   for (t in 1 : (num_observations - 1)){
     ### step 1 - compute weights of each particle
     ## update alphas2i, alphai2i, and logf
-    boarding_logf_update_full(logf, alphas2i, alphai2i, xts,lambda,gamma, N);
+    boarding_logf_update_full(logf, alphas2i, alphai2i, xts, lambda, gamma, N);
     for (p in 1 : num_particles){
       fpsi[ , p] <- logf[,p] + logpolicy[ ,  t + 1];
       logcondexp[p] <- lw.logsum(fpsi[ , p]); ## expectation of psi[t+1] given x[t]
