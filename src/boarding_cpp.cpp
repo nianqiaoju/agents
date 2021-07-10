@@ -449,6 +449,11 @@ void boarding_logf_update_full(NumericMatrix logf,
         icnt++;
       }
     }
+    // Rprintf("alphas2i = ");
+    // for(int n = 0; n < xts.nrow(); n++){
+    //   Rprintf("%.2f ", alphas2i(n,p));
+    //   }
+    // Rprintf("\n");
     // Rprintf("p = %i, scnt = %i, icnt = %i \n", p, scnt, icnt);
     // alpha updates finished
     di2i = logdpoisbinom_cpp(alphai2i(_,p));
