@@ -19,12 +19,15 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
   lognormalisingconstant <- rep(- Inf, num_observations); ## sum of lognormalising constant is final log marginal likelihood estimate
   ## logw: cumulative weights, used for resampling
   ## logW: log of normalized logw
-  logweights <- logw  <- logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
+  logweights <- rep(0, num_particles);
+  logw <- rep(0, num_particles);
+  logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
   ## storage and samples
-  stitindex <- it <- st <- integer(num_particles);
-  xts <- matrix(0, ncol = num_particles, nrow = N);
-  alphas2i <- alphai2i <-  matrix(0, nrow = N, ncol = num_particles);
-  logf <- fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
+  xts <- matrix(integer(N * num_particles), ncol = num_particles, nrow = N);
+  alphas2i <- matrix(0, nrow = N, ncol = num_particles);
+  alphai2i <- matrix(0, nrow = N, ncol = num_particles);
+  logf <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
+  fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
   ## logf stores the kernel f(snext,inext given xnow)
   ## fpsi this is the product of f * psi 
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
@@ -43,15 +46,17 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
   maxlogposterior <- max(logposterior);
   logposterior <- logposterior - maxlogposterior;
   logz0 <- log(sum(exp(logposterior))) + maxlogposterior; ## this is mu0(policy0)
+  # return(logz0);
+  ### for fully connected network and homogenous agents, the backward information filter is exact when N is small.
   lognormalisingconstant[t + 1] <- logz0;
-  normalizedposterior <- exp(logposterior) / sum(exp(logposterior)); ## use this to sample it at t = 0 
+  normalizedposterior <- exp(logposterior) / sum(exp(logposterior)); ## use this to sample it at t = 0
   stitindex <- sample.int(dim(lowdimstates)[1], size = num_particles, replace = TRUE, prob = normalizedposterior);
   it <- lowdimstates[stitindex, 2];
   st <- lowdimstates[stitindex, 1];
   for (p in 1:num_particles){
-    xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- 1; 
+    xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- 1;
   }
-  
+
   for (t in 1 : (num_observations - 1)){
     ### step 1 - compute weights of each particle
     ## update alphas2i, alphai2i, and logf
@@ -62,7 +67,7 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
     }
     ## unnormalized weight = p(yt | xt) * expecation(policy[t+1] |xt) / policy[t](xt)
     for (p in 1 : num_particles){
-      logweights[p] <- logcondexp[p] + dbinom(x = y[t + 1], size = it[p], prob = rho, log = TRUE) - logpolicy[stitindex[p], t];
+      logweights[p] <- logcondexp[p] + dbinom(x = y[t], size = it[p], prob = rho, log = TRUE) - logpolicy[stitindex[p], t];
     }
     ### step 2 -- compute normalizing constant given the weights
     maxlogweights <- max(logweights);
@@ -96,7 +101,7 @@ boarding_csmc_full_fast <- function(y, N, alpha0, lambda, gamma,rho, logpolicy, 
       stitindex[p] <- sample.int(dim(lowdimstates)[1], size = 1, prob = lw.normalize(fpsi[,p]));
       it[p] <- lowdimstates[stitindex[p], 2];
       st[p] <- lowdimstates[stitindex[p], 1];
-    } 
+    }
     xts <- boarding_sample_x_given_si(xts, alphas2i, alphai2i, st, it, N, num_particles);
   }
   return(sum(lognormalisingconstant));

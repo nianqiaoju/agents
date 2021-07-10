@@ -17,15 +17,17 @@
 boarding_csmc_sparse_fast <- function(y, N, alpha0, lambda, gamma, rho, neighbors, logpolicy, num_particles = 20, ess_threshold = 0.5){
   num_observations <- length(y);
   lognormalisingconstant <- rep(- Inf, num_observations); ## sum of lognormalising constant is final log marginal likelihood estimate
-  logweights <- logw  <- logW <- rep(0, num_particles); 
   ## logw: cumulative weights, used for resampling
   ## logW: log of normalized logw
-  ## average of weights is one step normalisingconstant
+  logweights <- rep(0, num_particles);
+  logw <- rep(0, num_particles);
+  logW <- rep(0, num_particles); ## average of weights is one step normalisingconstant
   ## storage and samples
-  stitindex <- it <- st <- integer(num_particles);
-  xts <- matrix(0, ncol = num_particles, nrow = N);
-  alphas2i <- alphai2i <-  matrix(0, nrow = N, ncol = num_particles);
-  logf <- fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
+  xts <- matrix(integer(N * num_particles), ncol = num_particles, nrow = N);
+  alphas2i <- matrix(0, nrow = N, ncol = num_particles);
+  alphai2i <- matrix(0, nrow = N, ncol = num_particles);
+  logf <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
+  fpsi <- matrix(-Inf, nrow = dim(logpolicy)[1], ncol = num_particles); 
   ## logf stores the kernel f(snext,inext given xnow), each column is a particle
   ## fpsi this is the product of f * psi 
   logcondexp <- rep(-Inf, num_particles); ## this is the log normalizing constant of fpsi
@@ -51,7 +53,7 @@ boarding_csmc_sparse_fast <- function(y, N, alpha0, lambda, gamma, rho, neighbor
   it <- lowdimstates[stitindex, 2];
   st <- lowdimstates[stitindex, 1];
   for (p in 1:num_particles){## can vectorize this later 
-    xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- 1; 
+    xts[sample.int(n = N, size = it[p], replace = FALSE), p] <- as.integer(1); 
   }
   for (t in 1 : (num_observations - 1)){
     ### step 1 - compute weights of each particle
@@ -64,7 +66,7 @@ boarding_csmc_sparse_fast <- function(y, N, alpha0, lambda, gamma, rho, neighbor
     }
     ## unnormalized weight = p(yt | xt) * expecation(policy[t+1] |xt) / policy[t](xt)
     for (p in 1 : num_particles){
-      logweights[p] <- logcondexp[p] + dbinom(x = y[t + 1], size = it[p], prob = rho, log = TRUE) - logpolicy[stitindex[p], t];
+      logweights[p] <- logcondexp[p] + dbinom(x = y[t], size = it[p], prob = rho, log = TRUE) - logpolicy[stitindex[p], t];
     }
     ### step 2 -- compute normalizing constant given the weights
     maxlogweights <- max(logweights);
