@@ -350,8 +350,8 @@ void boarding_bif_update_fast(NumericMatrix logpolicy,
 /*
  * given all particles (xts), update the following items:
  * (1) logf(s(t+1), i(t+1) | xt)
- * (2) alpha_{s to i}(xt)
- * (3) alpha_{i to i}(xt)
+ * (2) alpha_{s to i}(xt): the probability that the n-th individual transitions from "s" to "i"
+ * (3) alpha_{i to i}(xt): the probability that the n-th individual transitions from "i" to "i"
  * given the paramters lambda, gamma and the social network in neighbors
  */
 
@@ -380,18 +380,22 @@ void boarding_logf_update_sparse(NumericMatrix logf,
     icnt = 0;
     for(int n = 0; n < xts.nrow(); n++){
       if(xts(n,p) == 0){
-        mindex = ineighbors = 0;
+        mindex = 0;
+        ineighbors = 0;
         while(mindex < neighbors.ncol() & neighbors(n,mindex) >= 0){
           ineighbors += ((xts(neighbors(n,mindex),p) == 1)? 1 : 0);
           mindex++;
         }
         // Rprintf("agent %i has %i neighbors\n", n, mindex);
-        // mindex is the number of neighbors of agent n 
-        alphas2i(n,p) = lambda * ineighbors / mindex;
+        // mindex is the number of neighbors of agent n (excluding n itself) 
+        // ineighbors is the number of infectious neighbors
+        alphas2i(n,p) = lambda * ineighbors / (mindex + 1);
         scnt++;
       }else if(xts(n,p) == 1){
         alphai2i(n,p) = 1 - gamma;
         icnt++;
+      }else{
+        // do nothing for the "r" individuals
       }
     }
     // alpha updates finished
